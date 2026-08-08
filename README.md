@@ -188,25 +188,6 @@ Each project will document the environment, objectives, implementation, testing,
 
 ---
 
-## 📜 Scripts & Automation
-
-The repository will also contain scripts created to improve IT support efficiency.
-
-Examples:
-
-* System information collection
-* Disk space checks
-* User management
-* Service management
-* Software installation
-* Log collection
-* Active Directory administration
-* Automated reporting
-* Endpoint maintenance
-
-Each script will include documentation explaining its purpose, requirements, usage, and expected results.
-
----
 
 ## 📊 Troubleshooting Methodology
 
