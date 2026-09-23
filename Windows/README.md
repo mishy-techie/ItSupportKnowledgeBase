@@ -62,7 +62,7 @@ The purpose of this knowledge base is to provide structured technical guidance f
 - [Windows Restore Points](windows-restore-points.md)
 - [Windows System Restore Troubleshooting](windows-system-restore-troubleshooting.md)
 
-### Windows Recovery
+### Windows Recovery   -----
 
 - [Windows Recovery Environment](windows-recovery-environment.md)
 - [Windows Recovery Options](windows-recovery-options.md)
