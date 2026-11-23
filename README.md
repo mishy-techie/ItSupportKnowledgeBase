@@ -37,7 +37,7 @@ Every guide follows the same template, so you always know where to find what you
 | **Lessons Learned** | What did I take away from it? | What went well, what didn't, what I'd do differently |
 | **References** | Where did I get help? | Official docs and sources used |
 
-### Copy-and-paste template
+### Template
 
 ```markdown
 # Title of the Issue or Project
