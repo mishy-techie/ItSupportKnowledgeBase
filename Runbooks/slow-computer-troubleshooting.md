@@ -1,699 +1,406 @@
-# Slow Computer Troubleshooting Runbook
+# Slow Computer Troubleshooting
 
-## Overview
+**Summary:** "My computer is slow" can mean many things. This runbook helps you pin down what is slow, find the bottleneck (processor, memory, disk, startup, network, application, or hardware), apply a fix, and confirm the computer is faster.
 
-This runbook provides a standardized procedure for troubleshooting **slow computer performance** in an IT support environment.
+**Environment:** Controlled IT support environment (Windows 10/11 desktops and laptops, business applications, endpoint management and security software)
 
-A slow computer can result from high CPU or memory usage, insufficient disk space, storage performance problems, excessive startup applications, background processes, Windows system issues, malware, network delays, hardware limitations, or application-specific problems.
+**Related runbooks:** `wi-fi-connectivity.md`, `vpn-troubleshooting.md`, `blue-screen-of-death-bsod.md`, `laptop-setup-checklist.md`, `incident-escalation.md`
 
-The objective of this runbook is to identify the underlying cause of poor computer performance, apply an appropriate resolution, verify system performance, and determine when escalation is required.
-
----
-
-## Purpose
-
-This procedure is intended to help IT Support and Service Desk personnel:
-
-* Diagnose slow Windows computer performance
-* Identify CPU, memory, disk, and network bottlenecks
-* Troubleshoot slow application performance
-* Identify excessive background processes
-* Investigate startup and login delays
-* Check available storage
-* Troubleshoot Windows system performance issues
-* Identify potential hardware problems
-* Identify potential security-related performance issues
-* Determine when performance issues require escalation
+> **In plain English:** a computer has four main "workers": the processor (CPU), memory (RAM), storage (disk), and the network. If any one is overloaded, everything feels slow. This runbook finds which one is struggling and why.
 
 ---
 
-## Scope
+## Symptoms
 
-This runbook applies to common performance problems involving:
+A user may report:
 
-* Windows desktop computers
-* Windows laptops
-* Business applications
-* Startup and login performance
-* CPU utilization
-* Memory utilization
-* Disk utilization
-* Storage capacity
-* Network-dependent applications
-* Background processes
-* Windows services
-* Hardware performance
-
-The exact troubleshooting process may vary depending on the organization's hardware configuration, endpoint management solution, security software, and business applications.
+- Slow start-up or slow Windows sign-in
+- Applications are slow to open or freeze ("Not Responding")
+- Typing or mouse movement is delayed
+- Files take a long time to open
+- Browser is slow
+- The computer gets slower the longer it runs
+- Fan runs constantly, or the computer feels hot
+- Disk usage stays high
+- It is only slow on Wi-Fi, over VPN, or when using one application
+- Performance has declined gradually over time
 
 ---
 
-# Common Slow Computer Symptoms
+## Prerequisites
 
-Users may report:
+Before starting, make sure you have:
 
-* Computer takes a long time to start
-* Windows login is slow
-* Applications take a long time to open
-* Applications freeze or become unresponsive
-* Computer frequently displays "Not Responding"
-* Typing or mouse movement is delayed
-* Files take a long time to open
-* Browser performance is poor
-* Computer becomes slow after running for some time
-* Fan runs continuously
-* Computer becomes unusually hot
-* Disk usage remains high
-* Computer becomes slow when connected to a network
-* Computer performance has gradually declined over time
+- **Information from the user:** what exactly is slow, when it began, how often, which applications, and what changed recently
+- **Access:** local administrator rights on the computer for diagnostics (where authorized)
+- **Tools:** Task Manager, Resource Monitor, Event Viewer, Reliability Monitor, and an elevated Command Prompt or PowerShell
+- **Backup status:** confirm important data is backed up before any cleanup or repair
+- **Hardware details:** the device's specifications, age, and the user's normal workload (from the asset record)
 
 ---
 
-# Troubleshooting Procedure
+## Troubleshooting / Implementation
 
-## 1. Identify the Problem
+Work through these steps in order. Note what you see at each stage.
 
-Determine exactly what the user means by "slow."
+### 1. Define "slow"
+Ask and record:
 
-Ask and document:
+- What is slow: the whole computer, one application, start-up, sign-in, file access, or the internet?
+- When did it start, and is it constant or intermittent?
+- Does it happen after start-up or only after hours of use?
+- Is it slow only on the network, on Wi-Fi, or over VPN?
+- Was new software or hardware added, or Windows updated, recently?
+- Has the user's workload changed (bigger files, more applications)?
 
-* What is slow?
-* When did the problem begin?
-* Is the problem constant or intermittent?
-* Does the problem occur after startup or after extended use?
-* Which applications are affected?
-* Does the entire computer become slow?
-* Does the problem occur only when connected to the network?
-* Has new software or hardware recently been installed?
-* Has Windows recently been updated?
-* Has the user recently changed their workflow?
+### 2. Check the scope
+| Scope | Likely areas |
+|---|---|
+| **One computer** | Hardware limits, local software, background processes, storage, Windows configuration, malware, corrupted system files |
+| **Many computers** | Network, shared applications, servers, cloud service issues, a software deployment, security policy changes |
 
-Determine whether the problem affects:
+If several users report the same problem, treat it as a possible wider incident and escalate (see **When to escalate**).
 
-* Windows itself
-* A specific application
-* File access
-* Network resources
-* Internet access
-* Startup
-* Login
-* Shutdown
+### 3. Restart the computer
+Check how long it has been running:
 
----
-
-## 2. Determine the Scope
-
-Establish whether the issue is limited to one computer or affects multiple users.
-
-### One computer affected
-
-Possible causes include:
-
-* Hardware limitations
-* Local software
-* Background processes
-* Storage problems
-* Windows configuration
-* Malware
-* Corrupted system files
-* Insufficient resources
-
-### Multiple computers affected
-
-Possible causes include:
-
-* Network performance
-* Shared application infrastructure
-* Server performance
-* Cloud service issues
-* Software deployment
-* Security policy changes
-* Organization-wide system changes
-
-If multiple users report the same performance problem, investigate the possibility of a wider incident rather than treating each workstation independently.
-
----
-
-# Basic Performance Checks
-
-## 3. Restart the Computer
-
-If the computer has been running for an extended period, perform a controlled restart where appropriate.
-
-A restart can clear:
-
-* Temporary processes
-* Memory utilization
-* Hung applications
-* Pending updates
-* Temporary system conditions
-
-Do not assume that restarting is the complete solution. If the issue returns, continue troubleshooting to identify the underlying cause.
-
----
-
-## 4. Check Task Manager
-
-Open **Task Manager** and review system resource utilization.
-
-Check:
-
-* CPU
-* Memory
-* Disk
-* Network
-* Processes
-* Startup applications
-
-Look for processes consistently consuming excessive resources.
-
-High resource utilization should be correlated with the user's symptoms before terminating processes.
-
-Do not terminate unknown system or security processes without understanding their purpose and authorization.
-
----
-
-# CPU Troubleshooting
-
-## 5. Check CPU Utilization
-
-Review CPU usage in Task Manager.
-
-High CPU utilization may be caused by:
-
-* Resource-intensive applications
-* Background processes
-* Windows updates
-* Antivirus scans
-* Browser processes
-* Software installation
-* Application errors
-* Malware
-* Hardware limitations
-
-Identify which process is consuming CPU resources.
-
-Determine whether high CPU usage is:
-
-* Temporary
-* Persistent
-* Associated with a specific application
-* Associated with system activity
-
----
-
-## 6. Investigate High CPU Usage
-
-If a specific application is consuming excessive CPU:
-
-1. Confirm whether the application is required.
-2. Check whether the application is performing a known resource-intensive task.
-3. Check for application updates.
-4. Restart the application where appropriate.
-5. Check whether the issue returns.
-6. Review application logs where available.
-
-If a Windows process is consuming excessive CPU, investigate the process before terminating it.
-
----
-
-# Memory Troubleshooting
-
-## 7. Check Memory Utilization
-
-Review memory usage in Task Manager.
-
-High memory usage can cause:
-
-* Application slowdowns
-* Excessive paging
-* Application crashes
-* System freezes
-* Delayed response times
-
-Identify applications consuming significant amounts of memory.
-
-Common contributors include:
-
-* Web browsers
-* Large spreadsheets
-* Virtual machines
-* Development tools
-* Collaboration applications
-* Background services
-
----
-
-## 8. Check for Memory Pressure
-
-If memory usage remains consistently high:
-
-1. Identify the applications consuming memory.
-2. Close unnecessary applications where appropriate.
-3. Check whether the applications have known memory issues.
-4. Restart the affected application.
-5. Restart the computer if required.
-6. Determine whether the device has sufficient physical memory for the user's workload.
-
-Repeated high memory usage may indicate that the device requires hardware evaluation or workload optimization.
-
----
-
-# Disk Troubleshooting
-
-## 9. Check Disk Utilization
-
-Review disk utilization in Task Manager.
-
-Consistently high disk activity may be caused by:
-
-* Windows Update
-* Antivirus scans
-* Application activity
-* File synchronization
-* Search indexing
-* Insufficient memory
-* Storage problems
-* Background processes
-
-Identify the process generating the disk activity.
-
----
-
-## 10. Check Available Disk Space
-
-Low storage capacity can affect system performance and prevent applications or Windows from operating correctly.
-
-Check available space on the system drive.
-
-Investigate:
-
-* Temporary files
-* Recycle Bin
-* Downloads
-* Large user files
-* Application caches
-* Windows update files
-* Local synchronization folders
-
-Do not delete business data or system files without confirming their purpose.
-
----
-
-## 11. Check Storage Health
-
-If performance problems persist and disk activity appears abnormal, investigate storage health.
-
-Potential indicators of a storage problem include:
-
-* Extremely slow file operations
-* Frequent application freezes
-* Unexpected system errors
-* Disk-related warnings
-* Files taking unusually long to open
-* Repeated Windows crashes
-
-Hardware diagnostics should follow the organization's approved procedures.
-
-If storage failure is suspected, prioritize data protection and escalation.
-
----
-
-# Startup and Login Performance
-
-## 12. Review Startup Applications
-
-Excessive startup applications can significantly increase boot and login times.
-
-Review startup applications in Task Manager.
-
-Identify applications that:
-
-* Are unnecessary
-* Start automatically
-* Consume significant resources
-* Are no longer required
-
-Disable startup applications only when appropriate and permitted by organizational policy.
-
-Do not disable security, management, or business-critical applications without authorization.
-
----
-
-## 13. Investigate Slow Windows Login
-
-If the computer becomes slow specifically during login, investigate:
-
-* Group Policy processing
-* Login scripts
-* Network connectivity
-* Mapped drives
-* Roaming or redirected profiles where applicable
-* Authentication services
-* Startup applications
-* Endpoint management agents
-* Security software
-* Network resource availability
-
-If multiple users experience slow login times, investigate domain or infrastructure-level causes.
-
----
-
-# Application-Specific Performance
-
-## 14. Determine Whether One Application Is Affected
-
-If only one application is slow:
-
-1. Test another application.
-2. Determine whether Windows itself is responsive.
-3. Restart the affected application.
-4. Check application updates.
-5. Check application resource usage.
-6. Review application configuration.
-7. Check network connectivity if the application is network-dependent.
-8. Test with an appropriate alternative user profile where authorized.
-
-If other applications perform normally, focus troubleshooting on the affected application rather than the entire operating system.
-
----
-
-# Network-Related Performance
-
-## 15. Determine Whether the Network Is the Cause
-
-Some applications appear slow because they depend on network resources.
-
-Examples include:
-
-* Cloud applications
-* File shares
-* Remote desktops
-* VPN applications
-* Network databases
-* Web-based business applications
-
-Test general connectivity:
-
-```text id="1f2y8h"
-ping <default-gateway>
+```powershell
+(Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
 ```
 
-Test DNS:
+A very long uptime can build up hung processes, memory use, and pending updates. Do a proper **Restart** (not Shut down, because Windows "Fast startup" can keep parts of the old session). If the problem returns, keep going. A restart is a workaround, not a fix.
 
-```text id="x1i8h4"
+### 4. Check Task Manager
+Open **Task Manager** (Ctrl+Shift+Esc) and review **CPU, Memory, Disk, Network, and Startup apps**.
+
+- Match what you see with the user's symptoms before ending any process.
+- Do not end unknown, system, or security processes unless you understand them and are authorized.
+
+Quick command-line view:
+
+```powershell
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 Name, CPU, WorkingSet
+```
+
+### 5. Check CPU usage
+High CPU can come from heavy applications, Windows updates, antivirus scans, browsers, software installs, application errors, malware, or hardware limits.
+
+Work out whether it is:
+
+- Short-lived or constant
+- Tied to one application or to system activity
+
+If one application is using a lot of CPU:
+
+1. Confirm the application is needed and whether it is doing a known heavy task.
+2. Check for application updates.
+3. Restart the application and see whether it returns.
+4. Review the application's logs where available.
+
+If a Windows process is responsible, investigate before ending it.
+
+### 6. Check memory
+High memory use causes slowdowns, excess paging, freezes, and crashes. Common causes are web browsers (many tabs or extensions), large spreadsheets, virtual machines, development tools, and collaboration apps.
+
+```powershell
+Get-CimInstance Win32_OperatingSystem | Select-Object @{n='TotalGB';e={[math]::Round($_.TotalVisibleMemorySize/1MB,1)}}, @{n='FreeGB';e={[math]::Round($_.FreePhysicalMemory/1MB,1)}}
+```
+
+If memory stays consistently high:
+
+1. Identify which applications use it.
+2. Close unnecessary applications.
+3. Restart the affected application or the computer.
+4. Decide whether the computer has enough RAM for the user's workload.
+
+Repeated high memory use may mean the workload has outgrown the device.
+
+### 7. Check disk activity
+Constant high disk use can come from Windows Update, antivirus scans, file synchronization (for example, cloud storage), search indexing, low memory, failing storage, or background processes.
+
+1. Find the process causing the activity (Task Manager or **Resource Monitor**: run `resmon`).
+2. Check whether it is temporary (for example, an update or scan) or ongoing.
+3. Check what type of drive the computer has:
+
+```powershell
+Get-PhysicalDisk | Select-Object FriendlyName, MediaType, HealthStatus, OperationalStatus
+```
+
+Older mechanical hard drives (HDD) are much slower than solid-state drives (SSD) and are a common cause of "slow" computers.
+
+### 8. Check free disk space
+Low free space slows Windows and applications and can stop updates installing.
+
+```powershell
+Get-PSDrive C | Select-Object @{n='UsedGB';e={[math]::Round($_.Used/1GB,1)}}, @{n='FreeGB';e={[math]::Round($_.Free/1GB,1)}}
+```
+
+Look at temporary files, the Recycle Bin, Downloads, large user files, application caches, Windows update files, and local sync folders. Windows **Storage settings** or Disk Cleanup can help.
+
+> **Warning:** Do not delete business data or system files unless you know what they are and have confirmed with the user or your policy.
+
+### 9. Check storage health
+Signs of a failing drive include very slow file operations, frequent freezes, disk errors, files that take a long time to open, and repeated crashes.
+
+```cmd
+chkdsk C: /scan
+```
+
+If you suspect storage failure, **protect the user's data first** and escalate. Run hardware diagnostics only through your approved procedure.
+
+### 10. Review start-up programs
+Too many start-up programs slow boot and sign-in. In **Task Manager > Startup apps**, look for unnecessary or resource-heavy items.
+
+```powershell
+Get-CimInstance Win32_StartupCommand | Select-Object Name, Command, Location
+```
+
+Disable only what is appropriate and permitted by policy. Do **not** disable security, management, or business-critical applications without authorization.
+
+To see how long recent boots took, check Event Viewer under **Applications and Services Logs > Microsoft > Windows > Diagnostics-Performance > Operational** (Event ID 100 records boot time).
+
+### 11. Investigate slow sign-in
+If it is slow mainly at sign-in, check:
+
+- Group Policy processing and sign-in scripts
+- Network connectivity and mapped drives
+- Roaming or redirected profiles (where used)
+- Authentication services
+- Start-up applications
+- Endpoint management and security agents
+
+If several users have slow sign-ins, investigate domain or infrastructure causes and escalate.
+
+### 12. Check whether one application is the problem
+If only one application is slow:
+
+1. Test another application and see whether Windows itself responds well.
+2. Restart the application and check for updates.
+3. Review its resource use and configuration (for example, add-ins or browser extensions).
+4. Check network connectivity if the application depends on the network.
+5. Test with another user profile if authorized.
+
+If other applications run normally, focus on the affected application, not the whole computer.
+
+### 13. Check whether the network is the cause
+Some applications seem slow because they rely on the network (cloud apps, file shares, remote desktops, VPN, web-based apps). Test the basics:
+
+```cmd
+ping <default-gateway>
 nslookup example.com
 ```
 
-If the application is only slow when accessing a network resource, investigate the network path rather than assuming that the computer itself is slow.
+If it is only slow when using a network resource, investigate the network path, not the computer.
 
-For wireless-related problems, follow the [Wi-Fi Connectivity](wi-fi-connectivity.md) runbook.
+- Wireless: see `wi-fi-connectivity.md`
+- VPN: see `vpn-troubleshooting.md`
 
-For VPN-related performance problems, follow the [VPN Troubleshooting](vpn-troubleshooting.md) runbook.
+### 14. Check power settings
+A "Power saver" plan can reduce performance, especially on laptops.
 
----
-
-# Windows System Troubleshooting
-
-## 16. Check Windows Updates
-
-Pending or recently installed Windows updates can affect system performance.
-
-Check:
-
-* Pending updates
-* Recent updates
-* Update installation status
-* Restart requirements
-* Failed updates
-
-If performance changed immediately after an update, document the timing and investigate whether the update is related.
-
-Do not remove security updates without authorization.
-
----
-
-## 17. Check Windows System Files
-
-If Windows appears unstable or corrupted, use approved system integrity tools.
-
-Run an elevated Command Prompt or PowerShell session.
-
-Check system file integrity:
-
-```text id="7l8k2d"
-sfc /scannow
+```cmd
+powercfg /getactivescheme
 ```
 
-If required, use the Deployment Image Servicing and Management tool:
+Change the power plan only if allowed by your organization's policy.
 
-```text id="d3b5n0"
+### 15. Check Windows updates
+Pending or recently installed updates can affect performance.
+
+- Check pending, recent, and failed updates, and whether a restart is needed.
+- If slowness began right after an update, record the timing and investigate.
+- Do not remove security updates without authorization.
+
+### 16. Check Windows system files
+If Windows seems unstable or damaged, run in an elevated window:
+
+```cmd
+sfc /scannow
 DISM /Online /Cleanup-Image /RestoreHealth
 ```
 
-Allow each command to complete before evaluating the results.
+Let each finish before judging the result, and note the outcome in the ticket.
 
-Record relevant output in the support ticket without including sensitive information.
+### 17. Consider security
+Slowness can be caused by malware, suspicious processes, unauthorized software, cryptomining, or unusual network activity.
 
----
+- Follow your endpoint security procedures.
+- **Do not** turn off antivirus or endpoint protection just to see whether it is the cause.
+- If you suspect malicious activity, stop routine troubleshooting and follow your security incident process.
 
-# Malware and Security Considerations
+### 18. Check hardware limits
+Compare the computer's specifications with the user's workload (RAM, CPU, storage type and capacity, device age, thermal condition, hardware health).
 
-## 18. Check for Security-Related Performance Issues
+```powershell
+Get-ComputerInfo | Select-Object CsName, OsName, CsProcessors, CsTotalPhysicalMemory
+```
 
-Unexpected performance degradation may be associated with:
+A computer can be healthy and still be too small for the job. Examples include too little RAM for large applications, an old HDD, a slow CPU, or too little storage. Upgrades and replacements should follow asset management procedures.
 
-* Malware
-* Suspicious processes
-* Unauthorized software
-* Cryptomining
-* Security software activity
-* Unusual network activity
+### 19. Check for overheating
+Signs: loud or constant fans, slowdown after long use, unexpected shutdowns, high temperatures, or reduced speed under load (thermal throttling).
 
-Follow organizational endpoint security procedures.
+Check for blocked vents, dust, dock or power problems, the environment, and hardware diagnostic warnings. Internal cleaning or repairs should follow approved procedures and manufacturer guidance.
 
-Do not disable antivirus or endpoint protection merely to determine whether it is causing performance problems.
+### 20. Check Event Viewer
+Look at **Windows Logs > System** and **Application** near the time of the slowdown for:
 
-If malicious activity is suspected, stop routine troubleshooting and follow the organization's security incident response process.
+- Disk errors
+- Application errors
+- Service failures
+- Driver problems
+- Unexpected shutdowns
+- Hardware warnings
 
----
+Not every warning is the cause. Match timestamps with the user's symptoms.
 
-# Hardware Considerations
+```powershell
+Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2; StartTime=(Get-Date).AddDays(-1)} -MaxEvents 20 |
+  Select-Object TimeCreated, Id, ProviderName, Message
+```
 
-## 19. Check Hardware Limitations
+### 21. Check Reliability Monitor
+```cmd
+perfmon /rel
+```
 
-Consider the computer's hardware specifications relative to the user's workload.
+Look for application crashes, driver or hardware failures, and update failures that line up with when the slowness began. This is especially useful for intermittent problems.
 
-Check:
+### When to escalate
+Use `incident-escalation.md` when:
 
-* RAM
-* CPU
-* Storage type
-* Storage capacity
-* Device age
-* Thermal conditions
-* Hardware health
+- Hardware or storage failure is suspected
+- Several users have the same problem
+- A shared application is affected
+- Network infrastructure seems responsible
+- The computer keeps crashing (see `blue-screen-of-death-bsod.md`)
+- System files cannot be repaired
+- Malware or unauthorized activity is suspected
+- Performance is still poor after approved troubleshooting
+- A hardware upgrade or replacement is needed
+- The fix needs privileges beyond your authority
 
-A computer may function normally but still be unsuitable for a user's workload because of insufficient hardware resources.
+**Include in the escalation:** device and OS details, symptoms and start time, CPU, memory, and disk findings, applications affected, error messages, Event Viewer or Reliability Monitor findings, what you tried and the results, and how many users are affected.
 
-Examples include:
+### Common slow computer scenarios
 
-* Insufficient RAM for large applications
-* Older mechanical hard drive
-* Limited CPU performance
-* Insufficient storage capacity
-* Thermal throttling
-
-Hardware upgrades or replacement should follow organizational asset management procedures.
-
----
-
-# Thermal and Power Issues
-
-## 20. Check for Overheating
-
-Possible symptoms of thermal problems include:
-
-* Loud or continuously running fans
-* System slowdown after extended use
-* Unexpected shutdowns
-* High temperatures
-* Performance degradation under load
-
-Check for:
-
-* Blocked ventilation
-* Dust buildup
-* Docking station or power issues
-* Environmental conditions
-* Hardware diagnostic warnings
-
-Hardware cleaning or internal repairs should follow approved procedures and manufacturer guidance.
-
----
-
-# Advanced Troubleshooting
-
-## 21. Check Event Viewer
-
-Windows Event Viewer can provide useful information when performance problems are associated with system errors.
-
-Review relevant logs for:
-
-* Disk errors
-* Application errors
-* Service failures
-* Driver problems
-* Unexpected shutdowns
-* Hardware-related warnings
-
-Pay particular attention to events that occur at the same time as the reported performance issue.
-
-Avoid treating every warning as a root cause. Correlate event timestamps with the user's symptoms.
+| Symptom | Possible cause | What to check |
+|---|---|---|
+| Slow right after start-up | Start-up apps or updates | Start-up programs and Windows Update |
+| Applications slow | CPU, memory, disk, or application issue | Task Manager and application behavior |
+| Disk at 100% | Background process, failing drive, low memory | Process using the disk; storage health |
+| Memory constantly high | Too many applications or too little RAM | Memory-heavy processes and workload |
+| Slower the longer it runs | Memory leak, background process, overheating | Restart, then monitor and look for repeating processes |
+| One application slow | Application-specific problem | Test other applications and examine the application |
+| Files open slowly | Storage or network issue | Whether files are local or on the network |
+| Slow sign-in | Group Policy, scripts, network, or profile | Sign-in dependencies |
+| Slow only on Wi-Fi | Wireless problem | `wi-fi-connectivity.md` |
+| Slow only over VPN | VPN or network performance | `vpn-troubleshooting.md` |
+| Fan runs constantly | High CPU, overheating, or background activity | Processes and hardware conditions |
+| Slow after an update | Update or driver issue | Recent updates and timing |
 
 ---
 
-## 22. Check Reliability Monitor
+## Resolution
 
-Windows Reliability Monitor can help identify patterns of:
+Apply the fix that matches what you found:
 
-* Application crashes
-* Windows failures
-* Driver failures
-* Hardware problems
-* Update failures
+| Finding | Typical resolution |
+|---|---|
+| Long uptime or hung processes | Restart the computer |
+| Heavy or misbehaving application | Update, restart, reconfigure, or escalate to the application owner |
+| Too many start-up programs | Disable unnecessary ones (if permitted) |
+| Low disk space | Clear temporary files, move or archive data (with approval) |
+| Corrupted system files | `sfc /scannow` and DISM |
+| Pending or failed updates | Complete or repair updates |
+| Power saver plan | Change to a balanced plan (if permitted) |
+| Insufficient RAM, old HDD, or old device | Request a hardware upgrade or replacement |
+| Overheating | Clear vents, check dock and power, escalate for repair |
+| Suspected malware | Stop and escalate to security |
+| Network-related | Use the Wi-Fi or VPN runbook, or escalate to the network team |
+| Failing storage | Protect data, then escalate |
 
-Look for failures that correlate with when the performance issue began.
+### Document the ticket
+Record:
 
-This can be particularly useful when the problem is intermittent.
+- Date and time reported, user, and device or asset ID
+- Operating system and symptoms
+- Applications affected
+- CPU, memory, disk, and storage findings
+- Network findings and error messages
+- Troubleshooting performed and changes made
+- Resolution and verification results
+- Escalation details, if any
 
----
-
-# Common Slow Computer Scenarios
-
-| Symptom                                    | Possible Cause                                    | Recommended Investigation                                        |
-| ------------------------------------------ | ------------------------------------------------- | ---------------------------------------------------------------- |
-| Computer is slow immediately after startup | Startup applications or updates                   | Check startup programs and Windows Update                        |
-| Applications are slow                      | CPU, memory, disk, or application issue           | Review Task Manager and application behavior                     |
-| Disk usage remains at 100%                 | Background process, storage, or memory pressure   | Identify disk-consuming processes and check storage health       |
-| Memory usage remains high                  | Too many applications or insufficient RAM         | Identify memory-heavy processes and evaluate workload            |
-| Computer becomes slow over time            | Memory leak, background process, or thermal issue | Restart, monitor resources, and investigate recurring processes  |
-| Only one application is slow               | Application-specific problem                      | Test other applications and investigate the affected application |
-| Files open slowly                          | Storage or network issue                          | Determine whether files are local or network-based               |
-| Login is slow                              | Group Policy, scripts, network, or profile issue  | Investigate login dependencies                                   |
-| Computer is slow only on Wi-Fi             | Network issue                                     | Follow Wi-Fi troubleshooting procedures                          |
-| Computer is slow only over VPN             | VPN or network performance                        | Follow VPN troubleshooting procedures                            |
-| Fan runs continuously                      | High CPU, thermal issue, or background activity   | Check processes and hardware conditions                          |
-| Performance degraded after an update       | Update or driver issue                            | Review recent updates and document timing                        |
-
----
-
-# Verification Checklist
-
-* [ ] User symptoms documented
-* [ ] Scope of issue determined
-* [ ] Computer restarted where appropriate
-* [ ] CPU utilization checked
-* [ ] Memory utilization checked
-* [ ] Disk utilization checked
-* [ ] Available storage checked
-* [ ] Startup applications reviewed
-* [ ] Application-specific performance checked
-* [ ] Network dependency evaluated
-* [ ] Windows Update status checked
-* [ ] System integrity checked where appropriate
-* [ ] Event Viewer reviewed where appropriate
-* [ ] Reliability Monitor reviewed where appropriate
-* [ ] Security considerations evaluated
-* [ ] Hardware limitations considered
-* [ ] Resolution applied
-* [ ] Performance verified
-* [ ] User confirms improvement
-* [ ] Ticket updated
-* [ ] Escalation completed if required
+> **Never** record passwords, tokens, recovery keys, or other sensitive information in the ticket.
 
 ---
 
-# Escalation Criteria
+## Verification
 
-Escalate the issue to the appropriate desktop support, systems, infrastructure, security, or hardware team when:
+- [ ] User symptoms documented
+- [ ] Scope determined
+- [ ] Computer restarted where appropriate
+- [ ] CPU, memory, and disk usage checked
+- [ ] Free storage checked
+- [ ] Start-up programs reviewed
+- [ ] Application-specific performance checked
+- [ ] Network dependency evaluated
+- [ ] Windows Update status checked
+- [ ] System integrity checked where appropriate
+- [ ] Event Viewer and Reliability Monitor reviewed where appropriate
+- [ ] Security and hardware considerations evaluated
+- [ ] Resolution applied
+- [ ] Performance re-tested (boot time, application launch, normal workload)
+- [ ] Performance remains good after a restart and some time of use
+- [ ] User confirms improvement
+- [ ] Ticket updated, and escalation completed if required
 
-* Hardware failure is suspected
-* Storage failure is suspected
-* Multiple users experience the same performance problem
-* A shared application is affected
-* Network infrastructure appears to be responsible
-* The computer repeatedly crashes
-* System files cannot be repaired
-* Malware or unauthorized activity is suspected
-* Performance remains poor after approved troubleshooting
-* Hardware replacement or upgrade is required
-* Administrative changes outside the support team's authorization are required
-
-Provide the escalation team with:
-
-* Device information
-* Operating system
-* User symptoms
-* When the problem began
-* Resource utilization findings
-* Application information
-* Error messages
-* Event or Reliability Monitor findings
-* Troubleshooting performed
-* Actions already taken
-* Test results
-* Number of affected users where applicable
+> **In plain English:** the computer starts and runs the user's normal work at a good speed, and it stays that way after a restart and a few hours of use.
 
 ---
 
-# Documentation Requirements
+## Prevention
 
-Record the following information in the support ticket:
+Organizations can reduce slow-computer problems by:
 
-* Date and time reported
-* Affected user
-* Device name or asset identifier according to organizational policy
-* Operating system
-* Symptoms
-* Applications affected
-* Resource utilization findings
-* Storage findings
-* Network-related findings
-* Error messages
-* Troubleshooting performed
-* Changes made
-* Resolution
-* Verification results
-* Escalation details where applicable
-
-Do not record passwords, authentication tokens, recovery keys, or other sensitive information.
+- **Setting hardware standards** and using SSDs and enough RAM for each role
+- **Replacing aging devices** on a planned cycle
+- **Keeping Windows, drivers, and approved applications updated**
+- **Monitoring endpoint health** (disk space, memory, crashes, boot times)
+- **Keeping enough free disk space**, with alerts for low space
+- **Reviewing and limiting start-up applications**
+- **Using endpoint management policies** to control software and settings
+- **Keeping endpoint security up to date** and scheduling scans outside working hours
+- **Tracking recurring performance problems** by application, model, or team
+- **Educating users** on safe software installation, closing unused applications, and restarting regularly
+- **Documenting root causes** of repeated issues so they can be fixed at source
 
 ---
 
-# Prevention
+## Lessons Learned
 
-Organizations can reduce recurring computer performance problems by:
+- **Ask what "slow" means.** Slow start-up, slow browser, and slow file access are three different problems.
+- **Measure before changing things.** Task Manager shows whether CPU, memory, disk, or network is the bottleneck.
+- **One computer or many?** If many, it is probably not the computers.
+- **Disk activity is often the hidden cause.** An HDD, a full drive, or a sync or scan can make a powerful computer feel slow.
+- **Restart properly.** "Shut down" and "Restart" are not the same on a system with Fast startup.
+- **Don't disable security tools to test them.** Use the approved process.
+- **Healthy is not the same as suitable.** A computer with no faults can still be too small for the workload.
+- **Correlate, don't guess.** An Event Viewer warning only matters if it lines up with the symptom.
 
-* Maintaining supported hardware standards
-* Monitoring endpoint health
-* Keeping Windows and approved applications updated
-* Maintaining sufficient disk space
-* Reviewing unnecessary startup applications
-* Monitoring endpoint security
-* Replacing aging hardware when appropriate
-* Maintaining adequate RAM and storage capacity
-* Monitoring recurring application performance issues
-* Maintaining appropriate endpoint management policies
-* Educating users about safe software installation and device maintenance
-* Documenting recurring performance problems and their root causes
+### My notes
+_Add your own lessons here from lab exercises or real tickets:_
+
+- 
 
 ---
 
-# Related Runbooks
+## References
 
-* [Wi-Fi Connectivity](wi-fi-connectivity.md)
-* [VPN Troubleshooting](vpn-troubleshooting.md)
-* [Blue Screen of Death (BSOD)](blue-screen-of-death-bsod.md)
-* [Laptop Setup Checklist](laptop-setup-checklist.md)
-* [Incident Escalation](incident-escalation.md)
+- Microsoft Learn: Troubleshoot Windows performance issues, Task Manager, and Resource Monitor
+- Microsoft Learn: System File Checker (SFC) and DISM
+- Microsoft Learn: `Get-PhysicalDisk`, `Get-CimInstance`, `Get-Process`, and `Get-WinEvent`
+- Microsoft Support: Reliability Monitor, Storage settings, and power plans (`powercfg`)
+- Microsoft Learn: Windows Diagnostics-Performance event logs (boot performance)
+- Your organization's hardware standards, endpoint security, and incident response procedures
