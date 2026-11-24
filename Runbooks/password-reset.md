@@ -1,362 +1,183 @@
 # Password Reset
 
-## Overview
+**Summary:** How to safely reset a user's password. The key rule is that identity is verified **before** anything is changed, because a password reset is one of the most common ways attackers take over accounts.
 
-This runbook provides a standardized procedure for handling user password reset requests.
+**Environment:** Controlled IT support environment (Active Directory, Microsoft Entra ID, hybrid identity, or another approved identity-management platform; ticketing system)
 
-Password reset requests are common IT Support incidents and may occur when a user:
+**Status:** Draft | **Last updated:** 2026-11-24
 
-* Forgets their password
-* Cannot authenticate to their account
-* Has been required to change an expired password
-* Is unable to access a service after a password change
-* Has been locked out due to repeated failed authentication attempts
+**Related runbooks:** `account-lockout.md`, `new-employee-onboarding.md`, `incident-escalation.md`
 
-The objective is to restore the user's access securely while ensuring that the identity of the requester is appropriately verified.
-
----
-
-## Purpose
-
-The purpose of this runbook is to provide IT Support personnel with a consistent process for:
-
-1. Verifying the user's identity
-2. Determining the reason for the password reset
-3. Performing the password reset through the organization's approved identity-management system
-4. Confirming that access has been restored
-5. Documenting the support request
-6. Identifying situations that require escalation
-
----
-
-## Scope
-
-This runbook applies to standard user password reset requests handled by the IT Support or Service Desk team.
-
-It is intended for use with organizational user accounts and should be adapted to the organization's identity platform and security policies.
-
-Examples of identity platforms may include:
-
-* Active Directory
-* Microsoft Entra ID
-* Hybrid Active Directory environments
-* Other approved identity-management platforms
+> **In plain English:** a password reset is like replacing a lost key. Before handing over a new one, you must be sure the person asking really owns the door.
 
 ---
 
 ## Security Considerations
 
-Password resets involve access to user accounts and therefore represent a security-sensitive activity.
+A password reset gives access to an account, so treat it as a security-sensitive action.
 
-Before resetting a password:
+- Verify identity using the organization's approved process **before** resetting.
+- Never ask for the user's existing password.
+- Never record passwords in tickets or documentation.
+- Never send passwords through insecure channels (plain email, public chat, text in the clear).
+- Follow the password policy and use only approved administrative tools.
+- Do not skip verification because a request seems urgent. Urgency is a common attacker tactic.
+- Treat unusual or suspicious requests as possible security incidents.
 
-* Verify the user's identity using the organization's approved verification procedure.
-* Never ask the user to provide their existing password.
-* Never record passwords in tickets or documentation.
-* Never send passwords through insecure communication channels.
-* Follow the organization's password policy.
-* Use only approved administrative tools.
-* Do not bypass identity verification because a request appears urgent.
-* Treat unusual or suspicious reset requests as potential security incidents.
+If a request looks suspicious, **stop the reset** and follow your security escalation procedure.
 
-If the request appears suspicious, stop the reset process and follow the organization's security escalation procedure.
+**Warning signs of a social-engineering attempt:**
+
+- Pressure to act immediately ("I'm about to present to the CEO")
+- Refusal or inability to complete verification
+- A request to send the new password to a different email or phone number
+- A request involving a privileged or executive account
+- A caller who knows a lot about the person but cannot pass verification
 
 ---
 
-## Symptoms / Trigger
+## Symptoms
 
-This runbook may be initiated when a user reports:
+Start this runbook when a user says:
 
-* "I forgot my password."
-* "My password isn't working."
-* "I can't log in."
-* "I need my password reset."
-* "My password has expired."
-* "I changed my password but cannot access my applications."
+- "I forgot my password."
+- "My password isn't working."
+- "I can't log in."
+- "My password has expired."
+- "I changed my password but can't get into my applications."
 
-Before performing a reset, determine whether the problem is actually a password issue.
+Before resetting, check the problem is actually a **password** problem. It may be a lockout, a disabled account, or a wider outage.
 
 ---
 
 ## Prerequisites
 
-The support technician should have:
+Before starting, make sure you have:
 
-* Access to the organization's approved identity-management system
-* Appropriate administrative permissions
-* Access to the organization's service desk/ticketing system
-* Knowledge of the organization's identity-verification procedure
-* Knowledge of the organization's password policy
-* Access to escalation procedures
+- **Access:** the approved identity-management system and the permission to reset passwords
+- **Ticketing:** access to the service desk or ticketing system
+- **Procedures:** the organization's identity-verification procedure and password policy
+- **Escalation path:** contacts for the identity and security teams
 
 ---
 
-## Initial Checks
+## Troubleshooting / Implementation
 
-Before resetting the password, gather the following information:
-
-### 1. Identify the User
-
+### Step 1: Identify the user and the problem
 Confirm:
 
-* User's full name
-* Username or account identifier
-* Department or team
-* Contact information, where appropriate
+- Full name, username or account ID, and department
+- What the user is trying to access
+- Whether it happens on one device or several
+- Whether they recently changed their password
+- Whether they see "incorrect password", "account locked", or "password expired"
+- Whether other users are affected
 
-### 2. Understand the Problem
-
-Determine:
-
-* What application or service is the user attempting to access?
-* Is the issue occurring on one device or multiple devices?
-* Has the user recently changed their password?
-* Is the account reporting that the password is incorrect?
-* Has the user received an account-lockout message?
-* Is the password expired?
-* Are other users experiencing the same issue?
-
-### 3. Check for Broader Issues
-
-Before resetting the password, determine whether there is a wider authentication problem.
-
-For example:
-
+### Step 2: Check for a wider problem
 ```text
 One user affected
         ↓
-Likely account-specific issue
+Likely an account-specific issue
         ↓
 Multiple users affected
         ↓
-Investigate authentication/service availability
+Investigate authentication or service availability
 ```
 
-If multiple users are experiencing authentication failures, avoid performing unnecessary individual password resets and investigate whether there is a broader service issue.
-
----
-
-## Identity Verification
-
-Identity verification must be completed **before** resetting the password.
-
-Follow the organization's approved identity-verification process.
-
-Depending on organizational policy, this may involve approved methods such as:
-
-* Verification through a known communication channel
-* Verification using approved identity information
-* Manager or authorized contact verification
-* Approved multi-factor authentication verification
-* Service Desk identity-verification procedures
-
-Do not create your own verification process or weaken existing security controls.
-
-### Important
-
-If the user's identity cannot be adequately verified:
-
-**Do not perform the password reset.**
-
-Escalate the request according to organizational policy.
-
----
-
-## Password Reset Procedure
-
-Once the user's identity has been verified:
-
-### Step 1 — Locate the User Account
-
-Open the organization's approved identity-management platform.
-
-Search for the user's account using the appropriate identifier.
-
-Confirm that the correct account has been selected.
-
-Verify relevant information such as:
-
-* Username
-* Display name
-* Department
-* Account status
-
-Avoid making changes to an account until the correct user has been confirmed.
-
----
-
-### Step 2 — Check Account Status
-
-Before resetting the password, check whether the account has additional problems.
-
-Review whether the account is:
-
-* Active
-* Disabled
-* Locked
-* Expired
-* Subject to another authentication restriction
-
-If the account is disabled, locked, or otherwise restricted, follow the appropriate account-management procedure rather than treating the issue as a simple password reset.
-
----
-
-### Step 3 — Reset the Password
-
-Use the organization's approved password-reset function.
-
-Apply the organization's password requirements, including applicable requirements for:
-
-* Password length
-* Password complexity
-* Password history
-* Password expiration
-* Temporary passwords
-* Password-change requirements
-
-Never document the actual password in the support ticket.
-
----
-
-### Step 4 — Communicate the Reset
-
-Inform the user through an approved communication method that the reset has been completed.
-
-If a temporary password is issued, follow the organization's approved procedure for securely delivering it.
-
-The user should be instructed to change a temporary password when required by organizational policy.
-
----
-
-### Step 5 — Verify Account Access
-
-Ask the user to attempt authentication again.
-
-Where appropriate, verify access to the affected service.
-
-Check for:
-
-* Successful authentication
-* Successful access to required applications
-* MFA prompts functioning correctly
-* No account-lockout messages
-* No additional authentication errors
-
----
-
-## Common Post-Reset Issues
-
-A successful password reset does not always immediately resolve every authentication problem.
-
-If the user still cannot sign in, investigate:
-
-### Cached Credentials
-
-The user's device or application may still be using previously cached credentials.
-
-### Multiple Devices
-
-The user may be signed in on another device using the old password.
-
-Examples include:
-
-* Laptop
-* Mobile phone
-* Tablet
-* Remote workstation
-
-### Email and Mobile Applications
-
-Applications such as email clients may continue attempting authentication with outdated credentials.
-
-### VPN
-
-A VPN client may have stored or cached authentication information.
-
-### Account Lockout
-
-Another device or service may continue attempting authentication with the previous password and cause the account to become locked again.
-
-### Synchronization
-
-In hybrid identity environments, password changes may require synchronization between identity systems.
-
-If synchronization appears to be delayed or failing, escalate according to the appropriate identity-management procedure.
-
----
-
-## Verification
-
-The incident can be considered resolved when:
-
-* The user's identity was successfully verified
-* The password reset was completed successfully
-* The user can authenticate successfully
-* The affected application or service is accessible
-* No unexpected account restrictions remain
-* The user understands any required next steps
-
----
-
-## Documentation Requirements
-
-Record the following information in the support ticket:
-
-* Date and time of the request
-* User/account affected
-* Reported issue
-* Identity-verification method or confirmation, according to policy
-* Troubleshooting performed
-* Action taken
-* Result
-* Any additional issues identified
-* Escalation details, if applicable
-
-### Never document:
-
-* The user's password
-* Temporary passwords
-* MFA codes
-* Authentication tokens
-* Security answers
-* Other authentication secrets
-
----
-
-## Escalation
-
-Escalate the request when:
-
-* The user's identity cannot be verified
-* The account is disabled
-* The account repeatedly becomes locked
-* Multiple users are experiencing authentication failures
-* Password synchronization appears to be failing
-* The identity-management platform is unavailable
-* There is evidence of unauthorized account activity
-* The request appears suspicious
-* The technician does not have sufficient permissions
-* The issue requires changes outside the Service Desk's authorization
-
-For suspected account compromise or other security-related events, follow the organization's security incident-response procedure.
-
----
-
-## Prevention / Recommendations
-
-Where appropriate, provide the user with guidance on:
-
-* Using a password manager approved by the organization
-* Keeping recovery information up to date
-* Enabling and maintaining MFA
-* Avoiding password reuse
-* Never sharing passwords
-* Reporting suspicious authentication activity
-* Contacting IT Support rather than attempting to bypass security controls
-
----
-
-## Troubleshooting Decision Flow
+If several users cannot sign in, do not reset passwords one by one. Investigate a wider authentication outage and escalate (see `incident-escalation.md`).
+
+### Step 3: Verify the user's identity
+Complete verification **before** any reset, using your organization's approved method. Depending on policy this might be:
+
+- Verification through a known, trusted contact channel
+- Approved identity information
+- Manager or authorized-contact confirmation
+- Approved MFA verification
+- Your Service Desk verification procedure
+
+Do not invent your own process or weaken existing controls.
+
+> **If identity cannot be verified:** do not reset the password. Escalate according to policy.
+
+### Step 4: Locate and check the account
+1. Open the approved identity platform and find the account.
+2. Confirm it is the correct user (username, display name, department).
+3. Check the status: **active, disabled, locked, expired, or otherwise restricted**.
+
+| Account status | What to do |
+|---|---|
+| Active and not locked | Continue with the reset |
+| Locked out | Follow `account-lockout.md` (a reset alone may not fix the cause) |
+| Disabled | Do not re-enable it as part of a reset. Escalate or check with HR or the manager |
+| Expired account | Escalate to the identity team |
+| Password expired | Continue with the reset |
+| Other restriction | Follow the relevant account-management procedure |
+
+Example check (Active Directory, fictional user `jdoe`):
+
+```powershell
+Get-ADUser -Identity jdoe -Properties Enabled, LockedOut, PasswordExpired, PasswordLastSet, AccountExpirationDate |
+  Select-Object Name, Enabled, LockedOut, PasswordExpired, PasswordLastSet, AccountExpirationDate
+```
+
+### Step 5: Reset the password
+Use the approved reset function and apply the password policy (length, complexity, history, expiration, and temporary password rules).
+
+Example (Active Directory). The password is typed at a hidden prompt so it never appears on screen or in a script:
+
+```powershell
+Set-ADAccountPassword -Identity jdoe -Reset -NewPassword (Read-Host -AsSecureString "New temporary password")
+Set-ADUser -Identity jdoe -ChangePasswordAtLogon $true
+```
+
+In Microsoft Entra ID or Microsoft 365, use the admin center's **Reset password** option and choose to require a password change at next sign-in, where your policy requires it.
+
+> **Preferred option:** if your organization uses **self-service password reset (SSPR)**, direct the user to it first. It is quicker, and it reduces the risk of tricking the Service Desk.
+
+### Step 6: Communicate the reset securely
+- Tell the user through an **approved** channel that the reset is complete.
+- Deliver any temporary password using the approved secure method, separate from the username where policy requires.
+- Remind the user to change a temporary password when prompted.
+
+### Step 7: Confirm access
+Ask the user to sign in again, and where appropriate confirm:
+
+- [ ] Sign-in succeeds
+- [ ] Required applications are reachable
+- [ ] MFA prompts work correctly
+- [ ] No lockout message appears
+- [ ] No other authentication errors appear
+
+### Common post-reset issues
+A reset does not always fix everything immediately. If the user still cannot sign in, check:
+
+| Issue | Why it happens | What to do |
+|---|---|---|
+| **Cached credentials** | Device or app still has the old password | Sign out and in again; clear saved credentials |
+| **Other devices** | Phone, tablet, or second computer still uses the old password | Update the password on every device |
+| **Email and mobile apps** | Apps keep retrying the old password | Update the password in each app |
+| **VPN client** | Saved old credentials | Update or clear the saved VPN credentials |
+| **Account lockout** | Another device keeps sending the old password and locks the account again | Follow `account-lockout.md` |
+| **Synchronization delay** | In hybrid setups, the change must sync between systems | Wait a few minutes; if it persists, escalate to the identity team |
+
+For hybrid environments, a sync delay or failure is normally handled by the identity team.
+
+### When to escalate
+Use `incident-escalation.md` when:
+
+- The user's identity cannot be verified
+- The account is disabled
+- The account keeps locking
+- Several users have authentication failures
+- Password synchronization appears to be failing
+- The identity platform is unavailable
+- There is evidence of unauthorized account activity, or the request looks suspicious
+- You do not have enough permissions
+- The change is outside the Service Desk's authority
+
+For suspected account compromise, follow your security incident response procedure.
+
+### Decision flow
 
 ```text
 User reports password problem
@@ -369,14 +190,14 @@ User reports password problem
             │
        ┌────┴────┐
        │         │
-    Verified   Not Verified
+    Verified   Not verified
        │         │
        ▼         ▼
 Check account   Do not reset
-    status      password
+    status      the password
        │         │
        ▼         ▼
-Is account     Escalate
+Is account      Escalate
 restricted?
        │
    ┌───┴────┐
@@ -388,7 +209,7 @@ Follow      Reset
 account     password
 procedure      │
               ▼
-       User tests login
+       User tests sign-in
               │
         ┌─────┴─────┐
         │           │
@@ -405,28 +226,97 @@ procedure      │
 
 ---
 
-## Related Runbooks
+## Resolution
 
-* [Account Lockout](account-lockout.md)
-* [Incident Escalation](incident-escalation.md)
+The request is resolved when the password has been reset, the user can sign in, and the ticket is documented.
+
+### Document the ticket
+Record:
+
+- Date and time of the request
+- User and account affected
+- Reported issue
+- Identity-verification method or confirmation (according to policy)
+- Troubleshooting performed and action taken
+- Result and any extra issues found
+- Escalation details, if any
+
+### Never document
+- The user's password or any temporary password
+- MFA codes or authentication tokens
+- Security answers
+- Any other authentication secrets
+
+---
+
+## Verification
+
+- [ ] User's identity verified before the reset
+- [ ] Correct account confirmed
+- [ ] Account status checked (not disabled, locked, or expired)
+- [ ] Wider outage ruled out
+- [ ] Password reset completed through the approved tool
+- [ ] Password delivered securely, and a change required if the policy says so
+- [ ] User signed in successfully
+- [ ] Affected application or service accessible
+- [ ] MFA works
+- [ ] No lockout or other restrictions remain
+- [ ] User understands any next steps
+- [ ] Ticket documented with no secrets recorded
+
+Quick check (Active Directory):
+
+```powershell
+Get-ADUser -Identity jdoe -Properties LockedOut, PasswordLastSet | Select-Object Name, LockedOut, PasswordLastSet
+```
+
+> **In plain English:** the right person got in, the account is healthy, and nothing sensitive was written down.
+
+---
+
+## Prevention
+
+Where appropriate, give users this guidance, and consider organizational controls too.
+
+### For users
+- Use an approved password manager
+- Keep recovery information (phone, backup email) up to date
+- Turn on and maintain MFA
+- Never reuse passwords or share them
+- Report suspicious sign-in activity or password-reset emails they did not request
+- Contact IT Support rather than trying to get around security controls
+
+### For the organization
+- **Enable self-service password reset** with strong verification, so fewer resets go through the Service Desk
+- **Use MFA** so a stolen password alone is not enough
+- **Use a clear, enforced identity-verification procedure** for all reset requests
+- **Apply modern password policy** (length over frequent forced changes, and blocking known-weak passwords)
+- **Monitor resets** for unusual patterns, such as many requests in a short time or resets on privileged accounts
+- **Train Service Desk staff** to recognize social-engineering attempts
+
+---
+
+## Lessons Learned
+
+- **Verify first, always.** A fast reset for the wrong person is far worse than a slow reset for the right one.
+- **Check the account status before resetting.** A lockout, disabled account, or outage will not be fixed by a new password.
+- **A reset can cause a lockout.** Old passwords saved on phones and apps keep trying and lock the account again.
+- **Urgency is a red flag.** Pressure to skip steps should make you more careful, not less.
+- **Keep secrets out of tickets.** Temporary passwords and MFA codes should never appear in notes.
+- **Self-service is safer and faster** when it is properly set up.
+- **Several users failing at once is an incident**, not a pile of password resets.
+
+### My notes
+_Add your own lessons here from lab exercises or real tickets:_
+
+- 
 
 ---
 
 ## References
 
-When implementing this procedure in a real environment, consult the organization's:
-
-* Password policy
-* Identity and access management policy
-* Account recovery policy
-* Identity-verification procedure
-* Security incident-response procedure
-* Service Desk procedures
-
----
-
-## Status
-
-**Status:** Draft
-
-**Last Updated:** 2026-08-08
+- Microsoft Learn: Microsoft Entra self-service password reset (SSPR) and password policies
+- Microsoft Learn: Active Directory PowerShell module (`Get-ADUser`, `Set-ADAccountPassword`, `Set-ADUser`)
+- NIST SP 800-63B, Digital Identity Guidelines: Authentication and Lifecycle Management
+- Your organization's password policy, identity and access management policy, and account recovery policy
+- Your organization's identity-verification, Service Desk, and security incident response procedures
