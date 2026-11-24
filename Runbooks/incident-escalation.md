@@ -1,475 +1,166 @@
-# Incident Escalation Runbook
+# Incident Escalation
 
-## Overview
+**Summary:** Incident escalation is handing an IT problem to the right team when it goes beyond your access, skills, or authority. This runbook explains how to decide when to escalate, who to send it to, what to include, and how to follow it through to resolution.
 
-This runbook provides a standardized procedure for **IT incident escalation** within a Service Desk or IT Support environment.
+**Environment:** Controlled IT support environment (Service Desk or IT Support team with a ticketing system, support tiers, and service-level agreements)
 
-Effective incident escalation ensures that technical issues are transferred to the appropriate team when they exceed the scope, permissions, expertise, or resolution capabilities of the initial support team.
+**Related runbooks:** `account-lockout.md`, `blue-screen-of-death-bsod.md`, `vpn-troubleshooting.md`, `wi-fi-connectivity.md`, `employee-offboarding.md`
 
-The objective is to ensure incidents are escalated promptly, with sufficient technical information to minimize resolution time and maintain clear ownership throughout the incident lifecycle.
-
----
-
-## Purpose
-
-This procedure is intended to help IT Support personnel:
-
-* Identify incidents requiring escalation
-* Determine the appropriate escalation path
-* Prioritize incidents based on business impact
-* Perform appropriate initial troubleshooting
-* Document diagnostic findings
-* Transfer incidents with sufficient information
-* Maintain communication with affected users
-* Prevent unnecessary escalation
-* Track incidents through resolution
-* Maintain accurate support documentation
+> **In plain English:** escalating is not failing. It is passing the problem to someone better placed to fix it, with a clear note so they don't have to start from scratch.
 
 ---
 
-## Scope
+## Prerequisites
 
-This runbook applies to IT incidents involving:
+Before escalating, make sure you have:
 
-* End-user devices
-* User accounts
-* Network connectivity
-* Applications
-* Servers
-* Cloud services
-* VPN
-* Printers
-* Security systems
-* Identity and authentication
-* Hardware
-* Business applications
-* Infrastructure services
-
-The exact escalation process depends on the organization's IT structure, service management platform, support tiers, service-level agreements, and incident management policies.
+- **Access to the ticketing system** and the organization's priority matrix
+- **The escalation contacts:** support tiers, on-call details, security team, vendors, and the major incident process
+- **Awareness of SLAs:** response and resolution targets for the incident's priority
+- **The relevant troubleshooting runbook** for the issue, already worked through
+- **Authority limits:** know what you are and are not permitted to change
 
 ---
 
-# Incident Classification
-
-## 1. Identify the Incident
-
-Before escalating, establish what is happening.
-
-Determine:
-
-* What is not working?
-* Who is affected?
-* When did the problem begin?
-* Is the issue ongoing?
-* What changed before the issue occurred?
-* Is the problem reproducible?
-* What systems are affected?
-* What is the business impact?
-* Are there known workarounds?
-
-Document the user's description accurately without assuming the root cause.
-
----
-
-# Impact and Urgency
-
-## 2. Determine Business Impact
-
-Consider:
-
-* Number of affected users
-* Number of affected devices
-* Criticality of the affected service
-* Department affected
-* Operational impact
-* Revenue impact
-* Security impact
-* Availability of a workaround
-* Geographic scope
-
-A single issue affecting a critical business service may require a higher priority than multiple low-impact individual incidents.
-
----
-
-## 3. Determine Incident Priority
-
-Use the organization's approved priority matrix.
-
-A typical model is:
-
-| Priority      | Typical Impact                               | Example                                                 |
-| ------------- | -------------------------------------------- | ------------------------------------------------------- |
-| P1 - Critical | Organization-wide or critical service outage | Core business service unavailable                       |
-| P2 - High     | Major business impact                        | Department unable to perform critical work              |
-| P3 - Medium   | Limited business impact                      | Individual user unable to access a required application |
-| P4 - Low      | Minimal business impact                      | Non-critical issue with an available workaround         |
-
-Priority should be based on business impact and urgency rather than the technical complexity of the issue.
-
----
-
-# Initial Troubleshooting
-
-## 4. Perform Appropriate First-Line Troubleshooting
-
-Before escalation, perform troubleshooting that is:
-
-* Within your support authorization
-* Relevant to the reported symptoms
-* Safe
-* Documented
-* Consistent with approved procedures
-
-Examples include:
-
-* Confirming connectivity
-* Restarting affected services where authorized
-* Checking account status
-* Checking known service outages
-* Verifying configuration
-* Reviewing basic logs
-* Testing another device
-* Testing another network
-* Applying approved fixes
-* Following the relevant troubleshooting runbook
-
-Do not perform high-risk changes simply to avoid escalation.
-
----
-
-# Determine Escalation Requirement
-
-## 5. Escalate When the Issue Exceeds Support Scope
-
-Escalation may be required when:
-
-* The issue requires elevated permissions
-* The issue requires specialized expertise
-* The issue affects infrastructure
-* The issue affects multiple users
-* The issue involves a critical business service
-* The issue involves security concerns
-* Standard troubleshooting has been exhausted
-* A known workaround is unavailable
-* The issue requires configuration changes outside the Service Desk's authority
-* The incident is approaching or has exceeded its SLA
-* The issue requires vendor support
-
----
-
-# Technical Escalation
-
-## 6. Identify the Correct Support Team
-
-Typical escalation destinations include:
-
-### Service Desk / Level 1
-
-Handles:
-
-* Password resets
-* Account lockouts
-* Basic workstation troubleshooting
-* Basic application issues
-* Standard software installation
-* Basic connectivity issues
-
-### Desktop Support / Level 2
-
-Handles:
-
-* Complex workstation issues
-* Hardware problems
-* Driver issues
-* Operating system problems
-* Advanced endpoint configuration
-* Repeated BSOD incidents
-
-### Network Team
-
-Handles:
-
-* Network outages
-* Routing problems
-* Switch issues
-* Wireless infrastructure
-* DNS or DHCP problems
-* Enterprise VPN infrastructure
-
-### Systems / Infrastructure Team
-
-Handles:
-
-* Servers
-* Active Directory or identity infrastructure
-* Storage
-* Virtualization
-* Enterprise services
-* Infrastructure failures
-
-### Security Team
-
-Handles:
-
-* Suspected malware
-* Account compromise
-* Phishing incidents
-* Unauthorized access
-* Suspicious activity
-* Security policy violations
-* Data security incidents
-
-### Application Support
-
-Handles:
-
-* Business application failures
-* Application-specific errors
-* Application configuration
-* Application integrations
-* Vendor-specific application problems
-
-### Vendor Support
-
-Handles:
-
-* Product defects
-* Unsupported behavior
-* Vendor-specific failures
-* Hardware warranty issues
-* Software support cases
-
----
-
-# Security Escalation
-
-## 7. Identify Potential Security Incidents
-
-Escalate immediately according to the organization's security incident process when there is evidence or reasonable suspicion of:
-
-* Malware
-* Ransomware
-* Account compromise
-* Credential theft
-* Unauthorized access
-* Data exfiltration
-* Phishing
-* Suspicious authentication activity
-* Lost or stolen company devices
-* Unauthorized software
-* Suspicious privileged activity
-
-Do not continue routine troubleshooting if doing so could destroy evidence or increase the security risk.
-
-Do not delete suspicious files, reset compromised systems, or wipe devices unless directed by the appropriate security team or established incident response procedure.
-
----
-
-# Major Incident Escalation
-
-## 8. Identify Potential Major Incidents
-
-Consider major incident escalation when:
-
-* Multiple departments are affected
-* A critical business service is unavailable
-* A large number of users cannot work
-* Core network connectivity is unavailable
-* Authentication services are unavailable
-* Email is unavailable organization-wide
-* A major cloud service is unavailable
-* A security incident has significant business impact
-* There is no effective workaround
-* Business operations are significantly disrupted
-
-Follow the organization's major incident management process.
-
----
-
-# Vendor Escalation
-
-## 9. Determine Whether Vendor Support Is Required
-
-Before contacting a vendor, collect:
-
-* Product name
-* Product version
-* License or support information where appropriate
-* Error messages
-* Timestamp
-* Affected users
-* Affected systems
-* Relevant logs
-* Configuration information
-* Troubleshooting performed
-* Reproduction steps
-* Screenshots where appropriate
-
-Never provide sensitive credentials or confidential information to a vendor unless authorized and handled through approved procedures.
-
----
-
-# Escalation Documentation
-
-## 10. Document the Incident
-
-Before escalation, update the ticket with:
-
-* Incident summary
-* User impact
-* Business impact
-* Date and time
-* Symptoms
-* Error messages
-* Affected systems
-* Affected users
-* Device information
-* Recent changes
-* Troubleshooting performed
-* Results of troubleshooting
-* Relevant logs
-* Screenshots where appropriate
-* Workaround attempted
-* Current status
-* Priority
-* Reason for escalation
-* Destination support team
-
-Good documentation prevents the receiving team from repeating troubleshooting that has already been completed.
-
----
-
-# Escalation Handoff
-
-## 11. Transfer Ownership Clearly
-
-When escalating:
-
-1. Select the appropriate support team.
-2. Update the incident priority.
+## Troubleshooting / Implementation
+
+Follow these steps in order. If you spot a security issue or a possible major incident at any point, jump straight to the matching step.
+
+### 1. Understand the incident
+Find out and record, without assuming the cause:
+
+- What is not working, and who is affected?
+- When did it start, and is it still happening?
+- What changed beforehand?
+- Can it be reproduced?
+- What is the business impact, and is there a workaround?
+
+### 2. Set the priority
+Priority comes from **business impact and urgency**, not how technically complex the issue is. Use your organization's matrix. A typical model:
+
+| Priority | Typical impact | Example |
+|---|---|---|
+| **P1 Critical** | Organization-wide or critical service outage | Core business service unavailable |
+| **P2 High** | Major business impact | A department cannot do critical work |
+| **P3 Medium** | Limited business impact | One user cannot reach a required application |
+| **P4 Low** | Minimal impact | Non-critical issue with a workaround |
+
+Factors to weigh: number of users and devices affected, how critical the service is, security impact, revenue impact, location, and whether a workaround exists.
+
+### 3. Do appropriate first-line troubleshooting
+Before escalating, do what is **safe, authorized, relevant, and documented**:
+
+- Follow the relevant runbook
+- Check for known outages or recent changes
+- Check account status and basic connectivity
+- Test another device or network
+- Review basic logs
+- Apply approved fixes
+
+Do not make high-risk changes just to avoid escalating.
+
+### 4. Decide whether to escalate
+Escalate when:
+
+- The fix needs permissions you don't have
+- Specialist knowledge is needed
+- Infrastructure is involved
+- Multiple users are affected
+- A critical business service is affected
+- A security concern exists
+- Standard troubleshooting is exhausted and no workaround exists
+- The change is outside the Service Desk's authority
+- The SLA is close to being breached, or already has been
+- Vendor support is needed
+
+### 5. Choose the right team
+
+| Team | Typically handles |
+|---|---|
+| **Service Desk / Level 1** | Password resets, account lockouts, basic workstation, application, and connectivity issues, standard software installs |
+| **Desktop Support / Level 2** | Complex workstation problems, hardware, drivers, OS issues, repeated BSODs |
+| **Network team** | Outages, routing, switches, wireless infrastructure, DNS/DHCP, VPN infrastructure |
+| **Systems / Infrastructure** | Servers, Active Directory and identity infrastructure, storage, virtualization |
+| **Security team** | Malware, account compromise, phishing, unauthorized access, data security incidents |
+| **Application support** | Business application failures, configuration, and integrations |
+| **Vendor support** | Product defects, hardware warranty, unsupported behavior |
+
+### 6. Security escalation (act immediately)
+Escalate **right away** through your security incident process if you see or suspect:
+
+- Malware or ransomware
+- Account compromise or credential theft
+- Unauthorized access or data exfiltration
+- Phishing
+- Suspicious sign-ins or privileged activity
+- Lost or stolen company devices
+- Unauthorized software
+
+> **Do not** delete suspicious files, reset or wipe devices, or keep troubleshooting if it could destroy evidence. Wait for direction from the security team.
+
+### 7. Major incident escalation
+Treat it as a possible major incident when:
+
+- Several departments or many users are affected
+- A critical service, core network, authentication, or organization-wide email is down
+- A major cloud service is unavailable
+- There is no effective workaround
+- A security incident has significant business impact
+
+Follow your organization's major incident process. For P1 and major incidents, contact the right people directly (phone or chat as per policy) as well as updating the ticket.
+
+### 8. Vendor escalation
+Before contacting a vendor, gather:
+
+- Product name, version, and support or license details
+- Error messages and timestamps
+- Affected users and systems
+- Relevant logs and configuration details
+- Troubleshooting performed and steps to reproduce
+
+Never share credentials or confidential information with a vendor unless authorized and handled through approved procedures.
+
+### 9. Functional escalation (approval needed)
+Sometimes the problem is understood but you need approval or someone else to make the change, for example:
+
+- Privileged access requests or permission changes
+- Security policy exceptions
+- Firewall, network, or production system changes
+- Data recovery
+- Software licensing exceptions
+- Device replacement
+
+Get the right authorization **before** making the change.
+
+### 10. Document before you hand over
+Update the ticket with:
+
+- Incident summary, priority, and current status
+- User and business impact
+- Date, time, and symptoms
+- Exact error messages
+- Affected users, systems, and devices
+- Recent changes
+- Troubleshooting performed **and the results**
+- Relevant logs and sanitized screenshots
+- Workaround attempted
+- Reason for escalation and destination team
+
+> **Never** put passwords, MFA codes, tokens, or other secrets in the ticket.
+
+### 11. Hand over clearly
+1. Select the correct team.
+2. Confirm or update the priority.
 3. Provide the technical summary.
-4. Document completed troubleshooting.
-5. Identify the suspected area of failure if known.
-6. Include relevant evidence.
-7. State what assistance is required.
-8. Confirm the receiving team's ownership or acknowledgment where required.
+4. Record what has been tried.
+5. Note the suspected area of failure, if known.
+6. Attach evidence.
+7. State exactly what you need from them.
+8. Get acknowledgment from the receiving team where required.
 
-Avoid vague escalation notes such as:
+Avoid vague notes such as "Please investigate."
 
-> "Please investigate."
-
-Instead, provide a concise technical summary and specific escalation request.
-
----
-
-# User Communication
-
-## 12. Inform the User
-
-When appropriate, tell the affected user:
-
-* That the incident has been escalated
-* Why escalation was required
-* Which team is handling the issue
-* Expected next steps
-* Available workaround
-* Whether additional information is required
-
-Do not provide unsupported technical conclusions.
-
-Avoid promising a resolution time unless an approved SLA or support commitment exists.
-
----
-
-# SLA Management
-
-## 13. Monitor Service-Level Requirements
-
-Track:
-
-* Response time
-* Resolution target
-* Priority
-* Escalation time
-* Current owner
-* Pending actions
-* User communication
-* SLA status
-
-Escalate internally when an incident approaches an SLA threshold.
-
-Do not wait until the SLA has already been breached when early escalation is possible.
-
----
-
-# Functional Escalation
-
-## 14. Escalate When Specialized Approval Is Required
-
-Some incidents require escalation even when the technical problem is understood.
-
-Examples include:
-
-* Request for privileged access
-* Security policy exceptions
-* Firewall changes
-* Network configuration changes
-* Production system changes
-* Data recovery
-* Account permission changes
-* Software licensing exceptions
-* Device replacement
-* Application configuration requiring business approval
-
-Ensure the appropriate authorization is obtained before making changes.
-
----
-
-# Escalation Quality Checklist
-
-Before escalating, confirm:
-
-* [ ] Incident summary is clear
-* [ ] User impact documented
-* [ ] Business impact documented
-* [ ] Priority assigned
-* [ ] Affected systems identified
-* [ ] Affected users identified
-* [ ] Error messages recorded
-* [ ] Recent changes documented
-* [ ] Troubleshooting completed
-* [ ] Troubleshooting results documented
-* [ ] Relevant logs collected
-* [ ] Screenshots attached where appropriate
-* [ ] Workarounds documented
-* [ ] Correct support team selected
-* [ ] Reason for escalation documented
-* [ ] Required authorization identified
-* [ ] User communication completed where appropriate
-* [ ] SLA status reviewed
-
----
-
-# Common Escalation Scenarios
-
-| Scenario                           | Escalation Destination      | Information to Provide                                       |
-| ---------------------------------- | --------------------------- | ------------------------------------------------------------ |
-| Repeated BSOD                      | Desktop Support             | Stop code, dump information, recent changes, troubleshooting |
-| Organization-wide Wi-Fi outage     | Network Team                | Locations affected, timestamps, connectivity symptoms        |
-| VPN unavailable for multiple users | Network/Infrastructure Team | Affected users, error messages, VPN status                   |
-| Suspected malware                  | Security Team               | Symptoms, affected device, observed activity                 |
-| Account compromise                 | Security/Identity Team      | Account, suspicious activity, authentication details         |
-| Business application failure       | Application Support         | Application, error, affected users, reproduction steps       |
-| Server unavailable                 | Infrastructure Team         | Server/service, symptoms, timestamps, impact                 |
-| Hardware failure                   | Desktop Support/Vendor      | Device details, diagnostics, symptoms                        |
-| Missing company laptop             | Security/Asset Management   | Asset details, last known status, user report                |
-| SLA approaching                    | Appropriate escalation team | Priority, current status, outstanding actions                |
-
----
-
-# Escalation Communication Template
-
-Use the organization's approved ticket format. A useful technical summary can follow this structure:
+**Escalation note template** (use your organization's format where one exists):
 
 ```text
 Incident:
@@ -479,165 +170,218 @@ Impact:
 [Who or what is affected]
 
 Priority:
-[P1/P2/P3/P4]
+[P1 / P2 / P3 / P4]
 
 Started:
 [Date and time]
 
 Symptoms:
-[Observed symptoms]
+[What was observed]
 
 Error:
 [Exact error message or code]
 
 Affected Systems:
-[Systems/devices/services]
+[Systems, devices, or services]
 
 Troubleshooting Completed:
-[Actions performed and results]
+[Actions taken and the result of each]
 
 Recent Changes:
 [Known changes]
 
 Workaround:
-[Available workaround or "None"]
+[Available workaround, or "None"]
 
 Reason for Escalation:
-[Why the incident exceeds current support scope]
+[Why this is beyond current support scope]
 
 Requested Action:
-[What the receiving team needs to investigate or resolve]
+[What the receiving team needs to do]
 ```
 
----
+**Example (fictional):**
 
-# Post-Escalation Monitoring
+```text
+Incident:
+Finance team cannot open the shared accounting application.
 
-## 15. Track the Escalated Incident
+Impact:
+12 users in Finance; month-end close at risk.
 
-After escalation:
+Priority:
+P2
 
-* Monitor ticket status
-* Respond to requests for additional information
-* Keep the user informed where appropriate
-* Record major updates
-* Track workarounds
-* Monitor SLA status
-* Confirm resolution
+Started:
+2026-01-15 09:10
 
-Avoid changing ownership repeatedly without a clear reason.
+Symptoms:
+Application shows "Unable to connect to server" on all affected PCs.
 
----
+Error:
+Connection timed out (error code 10060)
 
-# Resolution Verification
+Affected Systems:
+Accounting application (APP-SRV01), Finance floor PCs
 
-## 16. Confirm the Issue Is Resolved
+Troubleshooting Completed:
+Tested from two PCs and another network: same result. Other apps work normally.
+Server pings but the application port does not respond.
 
-Before closing the incident:
+Recent Changes:
+Server patching was scheduled overnight.
 
-1. Confirm the technical fix has been implemented.
-2. Test the affected service or device.
-3. Confirm the user can perform the required task.
-4. Verify that no related errors remain.
-5. Document the resolution.
-6. Update the incident status.
+Workaround:
+None
 
-For major incidents, follow the organization's formal validation and closure procedure.
+Reason for Escalation:
+Likely server-side issue; no access to the application server.
 
----
+Requested Action:
+Check application service status on APP-SRV01 and review last night's patching.
+```
 
-# Incident Closure
+### 12. Keep the user informed
+Tell the user:
 
-## 17. Complete the Incident Record
+- That the incident has been escalated, and why
+- Which team has it
+- The next steps and any workaround
+- Whether you need more information from them
 
-The final ticket should contain:
+Do not give unsupported technical conclusions, and do not promise a fix time unless an approved SLA or commitment exists.
 
-* Original issue
-* Impact
-* Priority
-* Timeline
-* Troubleshooting
-* Escalation details
-* Root cause where known
-* Resolution
-* Workaround where applicable
-* User confirmation
-* Preventive actions where identified
+### 13. Watch the SLA
+Track response and resolution targets, priority, the current owner, pending actions, and user updates. **Escalate internally before the SLA is breached**, not after.
 
-Avoid closing incidents without sufficient documentation.
+### 14. Follow up after escalation
+- Monitor the ticket and answer requests for information
+- Update the user and record major changes
+- Track any workaround
+- Avoid passing ownership around without a clear reason
+- Confirm the resolution when the work is done
 
----
+### Common escalation scenarios
 
-# Knowledge Base Updates
-
-## 18. Identify Recurring Issues
-
-After resolution, determine whether the incident should result in:
-
-* A new knowledge base article
-* An update to an existing runbook
-* A new troubleshooting procedure
-* A monitoring improvement
-* A configuration change
-* A user education article
-* A problem management investigation
-
-Recurring incidents should be reviewed for opportunities to reduce future support requests.
-
----
-
-# Post-Incident Review
-
-## 19. Review Significant Incidents
-
-For major or recurring incidents, review:
-
-* What happened?
-* What was the impact?
-* When was the incident detected?
-* How quickly was it escalated?
-* Was the correct team engaged?
-* What caused the incident?
-* What resolved the issue?
-* Was communication effective?
-* Was the SLA met?
-* What could prevent recurrence?
-
-Document corrective and preventive actions according to the organization's incident management process.
+| Scenario | Send to | Include |
+|---|---|---|
+| Repeated BSOD | Desktop Support | Stop code, dump information, recent changes, troubleshooting |
+| Organization-wide Wi-Fi outage | Network team | Locations, timestamps, connection symptoms |
+| VPN down for multiple users | Network / Infrastructure | Affected users, error messages, VPN status |
+| Suspected malware | Security team | Symptoms, device, observed activity |
+| Account compromise | Security / Identity team | Account, suspicious activity, sign-in details |
+| Business application failure | Application support | Application, error, affected users, how to reproduce |
+| Server unavailable | Infrastructure team | Server or service, symptoms, timestamps, impact |
+| Hardware failure | Desktop Support / Vendor | Device details, diagnostics, symptoms |
+| Missing company laptop | Security / Asset management | Asset details, last known status, user report |
+| SLA approaching | Appropriate escalation team | Priority, status, outstanding actions |
 
 ---
 
-# Escalation Completion Checklist
+## Resolution
 
-* [ ] Correct escalation team identified
-* [ ] Incident priority confirmed
-* [ ] Business impact documented
-* [ ] Technical symptoms documented
-* [ ] Troubleshooting completed
-* [ ] Relevant evidence collected
-* [ ] Escalation reason documented
-* [ ] Required authorization identified
-* [ ] Incident transferred
-* [ ] Receiving team acknowledged the escalation where required
-* [ ] User informed
-* [ ] SLA monitored
-* [ ] Resolution verified
-* [ ] User impact resolved
-* [ ] Ticket documentation completed
-* [ ] Knowledge base update considered
-* [ ] Post-incident review completed where required
+An escalated incident is resolved when:
+
+1. The receiving team has fixed the problem, or an approved workaround is in place.
+2. The affected service or device has been tested.
+3. The user confirms they can do what they need to do.
+4. No related errors remain.
+5. The final ticket is complete, with:
+   - The original issue, impact, and priority
+   - A timeline and the troubleshooting done
+   - Escalation details
+   - Root cause (if known) and the resolution
+   - Any workaround and the user's confirmation
+   - Preventive actions identified
+
+For major incidents, follow your organization's formal validation and closure process. Do not close a ticket with thin documentation.
 
 ---
 
-# Completion Criteria
+## Verification
 
-An escalated incident can be considered complete when:
+### Before you escalate
+- [ ] Incident summary is clear
+- [ ] User and business impact documented
+- [ ] Priority assigned
+- [ ] Affected systems and users identified
+- [ ] Error messages and recent changes recorded
+- [ ] Troubleshooting completed and results documented
+- [ ] Logs and sanitized screenshots attached where useful
+- [ ] Workarounds documented
+- [ ] Correct team selected and reason for escalation recorded
+- [ ] Required authorization identified
+- [ ] Receiving team acknowledged the handover (where required)
+- [ ] User informed
+- [ ] SLA status reviewed
 
-* The appropriate support team has investigated the issue
-* The underlying issue has been resolved or an approved workaround is in place
-* The affected service or device has been tested
-* The user confirms that the required functionality has been restored where appropriate
-* The incident record contains sufficient documentation
-* SLA requirements have been recorded
-* Required follow-up actions have been assigned
-* Knowledge base or problem management updates have been identified where necessary
+### Before you close
+- [ ] Fix or approved workaround confirmed
+- [ ] Service or device tested
+- [ ] User confirms the impact is resolved
+- [ ] Ticket documentation completed
+- [ ] Follow-up actions assigned
+- [ ] Knowledge base or problem management update considered
+- [ ] Post-incident review completed where required
+
+> **In plain English:** the right team has the full story, the user knows what is happening, and the problem is fixed, tested, and written up.
+
+---
+
+## Prevention
+
+Escalation can't be eliminated, but unnecessary or poor escalations can be reduced.
+
+### Reduce avoidable escalations
+- **Keep runbooks up to date** so first-line staff can fix more
+- **Train staff** on common issues and on what is within their authority
+- **Share known issues and workarounds** in the knowledge base
+- **Use approved self-service tools** for common requests
+
+### Escalate better
+- **Use a standard escalation template** so nothing is missing
+- **Maintain a current contact and on-call list** for every team
+- **Agree clear priority definitions** and SLAs
+- **Escalate early** when an SLA is at risk
+
+### Learn from incidents
+- **Update the knowledge base and runbooks** after recurring incidents
+- **Raise a problem management investigation** for repeating issues
+- **Hold post-incident reviews** for major or recurring incidents
+
+For a post-incident review, ask:
+
+- What happened and what was the impact?
+- When was it detected, and how quickly was it escalated?
+- Was the right team engaged?
+- What caused it, and what fixed it?
+- Was communication effective, and was the SLA met?
+- What would prevent it happening again?
+
+---
+
+## Lessons Learned
+
+- **Escalate on impact, not on difficulty.** A simple problem affecting a critical service can outrank a complex one affecting one person.
+- **A good handover note saves hours.** "Please investigate" forces the next team to start again.
+- **Record results, not just actions.** "Restarted the service" is less useful than "Restarted the service, still failing with error 10060."
+- **Escalate early.** Waiting until an SLA is breached removes your options.
+- **Security issues change the rules.** Preserve evidence and let the security team lead.
+- **Keep the user informed.** Honest updates matter more than optimistic time estimates.
+- **Don't bounce tickets.** Repeated reassignment delays resolution.
+- **Feed lessons back.** Every escalation is a chance to improve a runbook.
+
+### My notes
+_Add your own lessons here from lab exercises or real tickets:_
+
+- 
+
+---
+
+## References
+
+- ITIL framework guidance on incident management, escalation, and problem management
+- NIST SP 800-61, Computer Security Incident Handling Guide
+- Your organization's priority matrix, SLAs, and major incident process
+- Your organization's security incident response and data handling policies
+- Vendor support documentation for the products in your environment
