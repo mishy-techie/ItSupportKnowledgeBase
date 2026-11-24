@@ -1,582 +1,365 @@
-# New Employee Onboarding Runbook
+# New Employee Onboarding
 
-## Overview
+**Summary:** The IT side of onboarding a new starter: creating their accounts, assigning the right access, preparing their equipment, and testing everything so they can work from their first day.
 
-This runbook provides a standardized procedure for **new employee onboarding** from an IT support perspective.
+**Environment:** Controlled IT support environment (identity provider, HR system, device management platform, productivity and collaboration tools, asset management system)
 
-Effective IT onboarding ensures that new employees receive the appropriate accounts, hardware, software, access permissions, and security configuration required to perform their role from their first day.
+**Applies to:** New employees, contractors, interns, temporary staff, remote staff, and office-based staff
 
-The objective of this runbook is to provide IT Support and Service Desk personnel with a repeatable process for preparing technology resources, validating access, documenting assets, and completing the employee's technical onboarding.
+**Related runbooks:** `laptop-setup-checklist.md`, `employee-offboarding.md`, `account-lockout.md`, `password-reset.md`, `printer-troubleshooting.md`, `vpn-troubleshooting.md`, `wi-fi-connectivity.md`, `incident-escalation.md`
 
----
-
-## Purpose
-
-This procedure is intended to help IT Support personnel:
-
-* Prepare IT resources for new employees
-* Create and configure user accounts
-* Assign appropriate access
-* Prepare laptops and other devices
-* Install required applications
-* Configure email and collaboration tools
-* Configure VPN and network access
-* Verify security controls
-* Document issued equipment
-* Validate access before the employee's start date
-* Provide basic technical guidance during onboarding
+> **In plain English:** when someone joins, IT makes sure they have an account, the right access (and nothing extra), a working computer, and the apps they need, all tested before day one.
 
 ---
 
-## Scope
+## Prerequisites
 
-This runbook applies to the IT portion of onboarding for:
+Before starting, make sure you have:
 
-* New employees
-* Contractors
-* Interns
-* Temporary staff
-* Remote employees
-* Office-based employees
+- **An approved request:** from HR or the hiring manager, through the organization's official process
+- **Starter details:**
+  - Name, start date, job title, department, and manager
+  - Employment type (employee, contractor, intern, temporary)
+  - Work location and whether office-based or remote
+  - Required applications, access, hardware, and peripherals
+  - Any special technical needs
+- **Role access definition:** a documented list of access and software for the role (role template or access matrix)
+- **Access to tools:** identity system, licensing portal, device management, and asset management
+- **Available equipment:** laptop, accessories, and any required licenses
+- **Enough lead time:** ideally start several days before the start date so testing can finish
 
-The exact onboarding process depends on the organization's identity provider, HR system, device management platform, application environment, security policies, and access control procedures.
-
----
-
-# Onboarding Information
-
-## 1. Confirm the New Employee Request
-
-Obtain the required onboarding information through the organization's approved process.
-
-Confirm:
-
-* [ ] Employee name
-* [ ] Start date
-* [ ] Job title
-* [ ] Department
-* [ ] Manager
-* [ ] Employment type
-* [ ] Work location
-* [ ] Remote or office-based status
-* [ ] Required applications
-* [ ] Required access
-* [ ] Required hardware
-* [ ] Required peripherals
-* [ ] Special technical requirements
-
-Do not proceed with access provisioning without the required authorization.
+> **Note:** Do not provision access without proper authorization. Never record passwords, MFA codes, or recovery keys in onboarding notes.
 
 ---
 
-## 2. Confirm Access Requirements
+## Troubleshooting / Implementation
 
-Determine what systems and resources the employee requires based on their role.
+Follow these steps in order.
 
-Examples include:
+### 1. Confirm the request and the authorization
+- [ ] Employee name, start date, job title, department, and manager
+- [ ] Employment type and work location (office or remote)
+- [ ] Required applications, access, hardware, and peripherals
+- [ ] Approval from HR or the manager is on record
 
-* Email
-* Microsoft 365 or equivalent productivity platform
-* Collaboration applications
-* File storage
-* Shared drives
-* Business applications
-* VPN
-* Remote desktop
-* Departmental applications
-* Printers
-* Internal websites
-* Ticketing systems
+### 2. Define the access needed
+Base access on the **role**, using **least privilege** and role-based access. Typical items:
 
-Access should follow the organization's **least privilege** and role-based access principles.
+- Email and productivity suite
+- Collaboration tools and file storage
+- Shared drives and departmental resources
+- Business applications and internal websites
+- VPN or remote desktop
+- Printers and ticketing system
 
-Do not grant additional permissions simply for convenience.
+> **Warning:** Do not copy the permissions of an existing employee. They may hold extra access built up over time. Use the role template instead. Do not grant extra permissions for convenience.
+
+### 3. Create the user account
+Create the account through the approved identity process.
+
+- [ ] Correct name, username, and email address
+- [ ] Correct department and manager
+- [ ] Correct organizational unit or groups
+- [ ] Activation date set to the start date
+- [ ] Required security policies applied
+
+Example check (Active Directory, fictional user `jdoe`):
+
+```powershell
+Get-ADUser -Identity jdoe -Properties Enabled, Department, Manager, MemberOf |
+  Select-Object Name, Enabled, Department, Manager, MemberOf
+```
+
+### 4. Set up authentication
+- [ ] First-time password set-up process completed through the approved method
+- [ ] MFA enrollment required
+- [ ] Authentication methods configured
+- [ ] Conditional access policies apply correctly (where used)
+- [ ] Recovery procedure available
+
+Give the employee their first sign-in details through the approved, secure process (for example, a one-time or temporary credential delivered separately from the username). Do not collect, store, or write down passwords or MFA codes.
+
+### 5. Assign licenses
+- [ ] Productivity suite and email
+- [ ] Collaboration tools
+- [ ] Business application licenses
+- [ ] Security-related licenses
+- [ ] Other role-specific software
+
+Assign licenses **before** testing the related applications.
+
+### 6. Prepare the computer
+- [ ] Device selected and assigned to the employee
+- [ ] Asset tag and serial number recorded
+- [ ] Operating system, management enrollment, and security baseline done
+- [ ] Windows updates installed
+
+Follow `laptop-setup-checklist.md` for the full device preparation.
+
+### 7. Prepare peripherals
+- [ ] Monitor, keyboard, and mouse
+- [ ] Headset and webcam
+- [ ] Docking station and power adapter
+- [ ] Laptop bag and other approved accessories
+
+Record all issued equipment in the asset system.
+
+### 8. Install and verify applications
+Install role-specific software using **approved distribution methods**, such as:
+
+- Office applications, browser, and PDF tools
+- Collaboration and email applications
+- VPN client and remote support software
+- Security applications
+- Business-specific applications
+
+Then test each critical application, starting with those needed on day one:
+
+- [ ] Application launches
+- [ ] User can sign in
+- [ ] License is active
+- [ ] Required resources are reachable
+- [ ] Permissions are correct
+
+### 9. Set up email and collaboration
+**Email**
+- [ ] Mailbox exists and is reachable
+- [ ] Calendar available
+- [ ] Email policies apply
+- [ ] Mobile or secondary access set up where authorized
+- [ ] Approved test message sent
+
+**Collaboration tools** (for example, Teams, Slack, or Zoom)
+- [ ] Sign-in works
+- [ ] Right teams or channels available
+- [ ] Messaging, meetings, and audio/video work
+
+### 10. Set up network access
+**Office-based staff**
+- [ ] Corporate Wi-Fi and wired network
+- [ ] Internal applications and network drives
+- [ ] Printers
+
+If wireless problems occur, see `wi-fi-connectivity.md`.
+
+**Remote staff or staff needing remote access**
+- [ ] VPN client installed and profile configured
+- [ ] Sign-in and MFA work
+- [ ] Internal resources reachable
+- [ ] Remote access policies applied
+
+If VPN problems occur, see `vpn-troubleshooting.md`.
+
+### 11. Set up file and data access
+Confirm access to approved:
+
+- Shared drives and SharePoint sites
+- Cloud storage and departmental folders
+- Business repositories and project resources
+
+Access must match the role. Avoid broad access where limited access will do.
+
+### 12. Set up printing (if required)
+- [ ] Correct printer installed and selected
+- [ ] Test page printed
+- [ ] User has permission to print
+
+If printing fails, see `printer-troubleshooting.md`.
+
+### 13. Verify security controls
+Do not bypass security to finish onboarding faster.
+
+- [ ] Endpoint protection and firewall active
+- [ ] Device encryption enabled
+- [ ] Secure Boot enabled where required
+- [ ] Device management active and compliant
+- [ ] Security, screen lock, and update policies applied
+- [ ] MFA enabled
+
+### 14. Review access before the start date
+Use this table to confirm each item is both **provisioned** and **tested**.
+
+| Resource | Required | Provisioned | Tested |
+|---|---|---|---|
+| User account | Yes | [ ] | [ ] |
+| Email | Yes | [ ] | [ ] |
+| MFA | Yes | [ ] | [ ] |
+| Productivity applications | Role-based | [ ] | [ ] |
+| Collaboration tools | Role-based | [ ] | [ ] |
+| VPN | Role-based | [ ] | [ ] |
+| File storage | Role-based | [ ] | [ ] |
+| Shared drives | Role-based | [ ] | [ ] |
+| Business applications | Role-based | [ ] | [ ] |
+| Printers | Role-based | [ ] | [ ] |
+
+> **Note:** Test using a test account or the approved process, not by signing in with the new employee's credentials.
+
+### 15. First-day support
+On or before day one, confirm the employee can:
+
+- [ ] Sign in to the computer and complete MFA
+- [ ] Reach email and required applications
+- [ ] Connect to the network
+- [ ] Open required files
+
+Give brief guidance, relevant to their environment, on:
+
+- How to contact IT Support and report problems
+- How to reset a password using approved methods
+- How to connect to Wi-Fi and use the VPN
+- How to reach company applications
+- How to lock the computer and protect company information
+- How to recognize and report suspicious activity
+
+### 16. Update asset records
+Record in the asset system:
+
+- Asset tag, serial number, device type, and model
+- Assigned employee and department
+- Assignment date and accessories issued
+- Device status
+
+Make sure the record matches the physical equipment handed over.
+
+### Common onboarding issues
+
+| Issue | Possible cause | What to check |
+|---|---|---|
+| User cannot sign in | Account, password, or authentication problem | Account status and authentication setup |
+| MFA cannot be completed | Enrollment problem | Approved MFA registration process |
+| Email unavailable | License or mailbox not provisioned | License assignment and mailbox status |
+| Application unavailable | Installation, license, or permissions | Installation, license, and access |
+| VPN unavailable | Network, profile, or authentication | `vpn-troubleshooting.md` |
+| Wi-Fi unavailable | Adapter, authentication, or network | `wi-fi-connectivity.md` |
+| Shared drive unavailable | Permissions, network, or VPN | Access requirements and connectivity |
+| Printer unavailable | Configuration or network | `printer-troubleshooting.md` |
+| Device not compliant | Policy or enrollment issue | Device management and security policies |
+| Laptop not ready | Setup or deployment issue | `laptop-setup-checklist.md` |
+| New account not appearing in a cloud service | Identity sync delay or failure | Wait for sync, then check sync status and escalate |
+
+### When to escalate
+Use `incident-escalation.md` when:
+
+- Account creation or identity synchronization fails
+- Licenses cannot be assigned
+- Application access cannot be provisioned
+- Device enrollment fails, or hardware is unavailable or defective
+- Security policies cannot be applied
+- Network access cannot be established
+- Access needs specialist approval, or the role's access is unclear
+- The request exceeds standard role-based permissions
+- The fix needs privileges beyond your authority
+
+**Include in the escalation:** employee role, start date, affected system, access requested, error messages, what you tried, current provisioning status, business impact, and the date it must be ready.
 
 ---
 
-# User Account Setup
+## Resolution
 
-## 3. Create the User Account
+The onboarding request is resolved when every step is complete, the Verification checklist is ticked, and:
 
-Create the employee's organizational account according to the approved identity management process.
+1. The manager and HR are told that IT onboarding is ready.
+2. The employee has received their equipment and first sign-in details through approved channels.
+3. Any open items are assigned an owner and a date.
 
-Verify:
+### Document the request
+Record:
 
-* [ ] Correct name
-* [ ] Correct username
-* [ ] Correct email address
-* [ ] Correct department
-* [ ] Correct manager
-* [ ] Correct organizational unit or group
-* [ ] Account activation date
-* [ ] Appropriate licensing
-* [ ] Required security policies
+- Employee name, start date, department, manager, and role
+- Assigned hardware and asset information
+- Accounts created and licenses assigned
+- Applications installed and access granted
+- Testing completed
+- Outstanding issues and escalations
+- Completion status
 
-Do not store user passwords in onboarding documentation.
-
----
-
-## 4. Configure Authentication
-
-Set up the organization's approved authentication methods.
-
-Verify:
-
-* [ ] Password setup process completed
-* [ ] MFA enrollment required
-* [ ] Authentication methods configured
-* [ ] Conditional access policies apply correctly where applicable
-* [ ] Recovery procedures are available
-
-Do not collect or record the employee's password or MFA codes.
+> **Never** record passwords, MFA codes, tokens, or recovery keys in the ticket.
 
 ---
 
-# Licensing
+## Verification
 
-## 5. Assign Required Licenses
+The IT onboarding request is complete only when all of these are confirmed.
 
-Assign licenses based on the employee's role.
+### Account and access
+- [ ] User account active
+- [ ] Correct licenses assigned
+- [ ] MFA configured
+- [ ] Access matches the role and approval on record
 
-Check:
+### Device and security
+- [ ] Laptop or desktop prepared and assigned
+- [ ] Device management enrollment complete
+- [ ] Security controls active
+- [ ] Required peripherals available
 
-* [ ] Productivity suite license
-* [ ] Email license
-* [ ] Collaboration tools
-* [ ] Business application licenses
-* [ ] Security-related licenses
-* [ ] Other role-specific software
+### Applications and connectivity
+- [ ] Required applications installed
+- [ ] Email and collaboration tools working
+- [ ] Network access working
+- [ ] VPN working where required
+- [ ] File access working
+- [ ] Printers configured where required
 
-Verify that licenses are assigned before testing the corresponding applications.
+### Wrap-up
+- [ ] Asset records updated
+- [ ] User received required IT guidance
+- [ ] Documentation complete
+- [ ] No unresolved critical onboarding issues
 
----
-
-# Hardware Preparation
-
-## 6. Assign a Laptop or Desktop
-
-Prepare the employee's primary computer.
-
-Verify:
-
-* [ ] Device selected
-* [ ] Asset tag recorded
-* [ ] Serial number recorded
-* [ ] Device assigned to employee
-* [ ] Operating system configured
-* [ ] Device management enrollment completed
-* [ ] Security baseline applied
-* [ ] Windows updates installed
-
-For detailed laptop preparation, follow the [Laptop Setup Checklist](laptop-setup-checklist.md).
+> **In plain English:** the new starter can sign in on day one, reach everything they need and nothing they shouldn't, and we have a record of what they were given.
 
 ---
 
-## 7. Prepare Required Peripherals
+## Prevention
 
-Depending on the employee's role, prepare:
+Most onboarding problems come from late requests, unclear access needs, and manual steps. These practices reduce them.
 
-* [ ] Monitor
-* [ ] Keyboard
-* [ ] Mouse
-* [ ] Headset
-* [ ] Webcam
-* [ ] Docking station
-* [ ] Power adapter
-* [ ] Laptop bag
-* [ ] Other approved accessories
+### Plan ahead
+- **Set onboarding lead times** so IT gets notice early enough to test
+- **Define onboarding service targets** (for example, ready two working days before the start date)
+- **Test access before the start date**, not on day one
 
-Record issued equipment in the asset management system.
+### Standardize
+- **Use a standard onboarding checklist** every time
+- **Document applications and access by role**
+- **Use standard laptop configurations**
+- **Use role-based access groups** instead of one-off permissions
 
----
+### Automate
+- **Automate account provisioning** from the HR system where possible
+- **Automate device enrollment and software deployment**
 
-# Application Setup
-
-## 8. Install Required Applications
-
-Install applications required for the employee's role.
-
-Common examples include:
-
-* Office productivity applications
-* Web browsers
-* Collaboration tools
-* Email applications
-* PDF tools
-* VPN client
-* Remote support software
-* Security applications
-* Business-specific applications
-
-Use approved software distribution methods wherever available.
+### Keep records and improve
+- **Keep asset records accurate**
+- **Review recurring onboarding failures** and fix the cause
+- **Collect feedback** from new starters and managers
 
 ---
 
-## 9. Verify Application Access
+## Lessons Learned
 
-Test each critical application.
+- **Start early.** Most day-one problems are caused by late requests.
+- **Define access by role.** Copying a colleague's access can pass on unnecessary permissions.
+- **"Created" is not "tested."** Check that each item works, not just that it exists.
+- **License before testing.** A missing license looks like a broken application.
+- **Allow for sync delays.** New accounts can take time to appear in cloud services.
+- **Keep credentials out of tickets.** Use secure, approved delivery for first sign-in details.
+- **Match records to reality.** The asset record should match what the employee actually received. This helps later at offboarding.
+- **A good first day builds trust in IT.** Be ready, and make support easy to find.
 
-Verify:
+### My notes
+_Add your own lessons here from lab exercises or real onboarding:_
 
-* [ ] Application launches
-* [ ] User can authenticate
-* [ ] License is active
-* [ ] Required resources are accessible
-* [ ] User has appropriate permissions
-
-Prioritize applications required for the employee's first day.
-
----
-
-# Email and Collaboration
-
-## 10. Configure Email
-
-Verify:
-
-* [ ] Email account exists
-* [ ] User can authenticate
-* [ ] Mailbox is accessible
-* [ ] Calendar is available
-* [ ] Required email policies apply
-* [ ] Mobile or secondary access is configured where authorized
-
-Send an approved test message where appropriate.
+- 
 
 ---
 
-## 11. Configure Collaboration Tools
-
-Set up required collaboration platforms.
-
-Examples include:
-
-* Microsoft Teams
-* Slack
-* Zoom
-* Other organization-approved collaboration applications
-
-Verify that the employee can:
-
-* Sign in
-* Access required teams or channels
-* Communicate with colleagues
-* Join meetings
-* Use required audio/video features
-
----
-
-# Network Access
-
-## 12. Verify Office Network Access
-
-For office-based employees, verify access to:
-
-* Corporate Wi-Fi
-* Wired network where applicable
-* Internal applications
-* Network drives
-* Printers
-* Other required network resources
-
-Follow the [Wi-Fi Connectivity](wi-fi-connectivity.md) runbook if wireless connectivity problems occur.
-
----
-
-## 13. Configure Remote Access
-
-For remote employees or employees requiring remote access:
-
-* [ ] VPN client installed
-* [ ] VPN profile configured
-* [ ] Authentication works
-* [ ] MFA works
-* [ ] Internal resources accessible
-* [ ] Remote access policies applied
-
-Follow the [VPN Troubleshooting](vpn-troubleshooting.md) runbook for VPN problems.
-
----
-
-# File and Data Access
-
-## 14. Configure Required File Access
-
-Verify access to approved:
-
-* Shared drives
-* SharePoint sites
-* Cloud storage
-* Departmental folders
-* Business repositories
-* Project resources
-
-Confirm that access matches the employee's role.
-
-Avoid granting broad access where a more limited permission is appropriate.
-
----
-
-# Printing
-
-## 15. Configure Required Printers
-
-If printing is required:
-
-* [ ] Appropriate printer installed
-* [ ] Correct printer selected
-* [ ] Test page printed
-* [ ] User has required permissions
-
-For printer problems, follow the [Printer Troubleshooting](printer-troubleshooting.md) runbook.
-
----
-
-# Security Configuration
-
-## 16. Verify Security Controls
-
-Confirm that required security controls are active.
-
-Check:
-
-* [ ] Endpoint protection
-* [ ] Firewall
-* [ ] Device encryption
-* [ ] Secure Boot where required
-* [ ] Device management
-* [ ] Security policies
-* [ ] MFA
-* [ ] Screen lock policy
-* [ ] Software update policy
-* [ ] Compliance status
-
-Do not bypass security controls to complete onboarding faster.
-
----
-
-# Access Verification
-
-## 17. Perform an Access Review
-
-Before the employee's start date, verify that the employee can access the systems required for their role.
-
-Use an onboarding access checklist covering:
-
-| Resource                  |   Required | Provisioned | Tested |
-| ------------------------- | ---------: | ----------: | -----: |
-| User account              |        Yes |         [ ] |    [ ] |
-| Email                     |        Yes |         [ ] |    [ ] |
-| MFA                       |        Yes |         [ ] |    [ ] |
-| Productivity applications | Role-based |         [ ] |    [ ] |
-| Collaboration tools       | Role-based |         [ ] |    [ ] |
-| VPN                       | Role-based |         [ ] |    [ ] |
-| File storage              | Role-based |         [ ] |    [ ] |
-| Shared drives             | Role-based |         [ ] |    [ ] |
-| Business applications     | Role-based |         [ ] |    [ ] |
-| Printers                  | Role-based |         [ ] |    [ ] |
-
----
-
-# First-Day IT Support
-
-## 18. Verify User Sign-In
-
-On or before the employee's first day, verify that the employee can:
-
-* Sign in to the computer
-* Authenticate to organizational services
-* Complete MFA
-* Access email
-* Access required applications
-* Connect to the required network
-* Access required files
-
----
-
-## 19. Provide Basic Technical Guidance
-
-Explain:
-
-* How to contact IT Support
-* How to report technical issues
-* How to reset a password using approved methods
-* How to connect to Wi-Fi
-* How to use VPN
-* How to access company applications
-* How to lock the computer
-* How to protect company information
-* How to recognize and report suspicious activity
-
-Provide only the guidance relevant to the employee's environment.
-
----
-
-# Asset Management
-
-## 20. Update Asset Records
-
-Record issued equipment in the organization's asset management system.
-
-Document:
-
-* Asset tag
-* Serial number
-* Device type
-* Device model
-* Assigned employee
-* Department
-* Assignment date
-* Accessories issued
-* Device status
-
-Ensure the asset record matches the physical equipment provided to the employee.
-
----
-
-# Onboarding Validation
-
-## 21. Complete the Final Technical Check
-
-Before closing the onboarding request, confirm:
-
-* [ ] User account active
-* [ ] Correct licenses assigned
-* [ ] MFA configured
-* [ ] Laptop or desktop assigned
-* [ ] Device management enrollment completed
-* [ ] Security controls active
-* [ ] Required applications installed
-* [ ] Email working
-* [ ] Collaboration tools working
-* [ ] Network access working
-* [ ] VPN working where required
-* [ ] File access working
-* [ ] Printers configured where required
-* [ ] Required peripherals available
-* [ ] Asset records updated
-* [ ] User received required IT guidance
-
----
-
-# Common Onboarding Issues
-
-| Issue                    | Possible Cause                             | Recommended Investigation                              |
-| ------------------------ | ------------------------------------------ | ------------------------------------------------------ |
-| User cannot sign in      | Account, password, or authentication issue | Verify account status and authentication configuration |
-| MFA cannot be completed  | Enrollment or authentication issue         | Verify approved MFA registration process               |
-| Email unavailable        | Licensing or mailbox issue                 | Check account licensing and mailbox provisioning       |
-| Application unavailable  | Installation, licensing, or permissions    | Verify installation, license, and access               |
-| VPN unavailable          | Network, profile, or authentication issue  | Follow VPN troubleshooting procedure                   |
-| Wi-Fi unavailable        | Adapter, authentication, or network issue  | Follow Wi-Fi troubleshooting procedure                 |
-| Shared drive unavailable | Permissions, network, or VPN issue         | Verify access requirements and connectivity            |
-| Printer unavailable      | Configuration or network issue             | Follow printer troubleshooting procedure               |
-| Device not compliant     | Policy or enrollment issue                 | Check device management and security policies          |
-| Laptop not ready         | Setup or deployment issue                  | Follow laptop setup checklist                          |
-
----
-
-# Escalation Criteria
-
-Escalate the onboarding request when:
-
-* Required account creation fails
-* Identity synchronization fails
-* Licensing cannot be assigned
-* Required application access cannot be provisioned
-* Device enrollment fails
-* Security policies cannot be applied
-* Hardware is unavailable or defective
-* Network access cannot be established
-* Business application access requires specialized approval
-* Access permissions are unclear
-* The requested access exceeds standard role-based permissions
-* The issue requires administrative privileges outside the support team's authorization
-
-Provide the escalation team with:
-
-* Employee role
-* Start date
-* Affected system
-* Requested access
-* Error messages
-* Troubleshooting performed
-* Current provisioning status
-* Business impact
-* Required completion date
-
----
-
-# Documentation Requirements
-
-Record the following information in the onboarding request:
-
-* Employee name
-* Start date
-* Department
-* Manager
-* Role
-* Assigned hardware
-* Asset information
-* Accounts created
-* Licenses assigned
-* Applications installed
-* Access granted
-* Testing completed
-* Outstanding issues
-* Escalations
-* Completion status
-
-Do not record passwords, MFA codes, authentication tokens, recovery keys, or other sensitive credentials.
-
----
-
-# Prevention and Process Improvement
-
-Organizations can improve employee onboarding by:
-
-* Using standardized onboarding checklists
-* Automating account provisioning
-* Using role-based access groups
-* Maintaining standardized laptop configurations
-* Using centralized software deployment
-* Automating device enrollment
-* Maintaining accurate asset records
-* Defining onboarding service-level targets
-* Testing access before the employee's start date
-* Maintaining documented application requirements by role
-* Reviewing recurring onboarding failures
-* Using feedback to improve the onboarding process
-
----
-
-# Completion Criteria
-
-The IT onboarding request can be considered complete when:
-
-* Employee account is active
-* Required licenses are assigned
-* MFA is configured
-* Device is prepared and assigned
-* Required security controls are active
-* Required applications are installed
-* Email and collaboration tools work
-* Required network access works
-* VPN works where required
-* Required files and business resources are accessible
-* Required peripherals are available
-* Asset records are complete
-* User has received basic IT guidance
-* No unresolved critical onboarding issues remain
-
----
-
-# Related Runbooks
-
-* [Laptop Setup Checklist](laptop-setup-checklist.md)
-* [Account Lockout](account-lockout.md)
-* [Password Reset](password-reset.md)
-* [Printer Troubleshooting](printer-troubleshooting.md)
-* [VPN Troubleshooting](vpn-troubleshooting.md)
-* [Wi-Fi Connectivity](wi-fi-connectivity.md)
-* [Incident Escalation](incident-escalation.md)
+## References
+
+- Microsoft Learn: Microsoft Entra ID and Microsoft 365 user and license management
+- Microsoft Learn: Active Directory user account management (if applicable)
+- Microsoft Learn: Windows Autopilot and Intune device enrollment
+- NIST SP 800-53, Access Control family (least privilege, account management)
+- CIS Critical Security Controls: Account Management and Access Control Management
+- Your organization's onboarding, access control, security, and asset management policies
