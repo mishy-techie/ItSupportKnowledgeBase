@@ -1,594 +1,182 @@
-# Employee Offboarding Runbook
+# Employee Offboarding
 
-## Overview
+**Summary:** The process of removing a departing employee's access, recovering company equipment, and preserving business data, so nothing is left open or unaccounted for.
 
-This runbook provides a standardized procedure for **employee offboarding** from an IT support and access management perspective.
+**Environment:** Controlled IT support environment (identity management, HR system, asset inventory)
 
-Effective IT offboarding ensures that organizational access is removed promptly, company-owned equipment is recovered, business data is protected, and asset records are updated when an employee leaves the organization or changes roles.
-
-The objective of this runbook is to provide IT Support and Service Desk personnel with a repeatable process for securely disabling access, recovering equipment, transferring required business information, and documenting completion.
+**Related runbooks:** `incident-escalation.md`, `account-lockout.md`, `new-employee-onboarding.md`
 
 ---
 
-## Purpose
+## Prerequisites
 
-This procedure is intended to help IT Support personnel:
+Before starting, make sure you have:
 
-* Disable employee accounts
-* Remove access to organizational systems
-* Revoke active sessions and authentication methods
-* Recover company-owned equipment
-* Protect organizational data
-* Transfer business information appropriately
-* Remove application access
-* Update asset records
-* Maintain an auditable offboarding process
-* Reduce the risk of unauthorized access after an employee leaves
+- **Authorization:** Written approval from HR or the employee's manager, including the last working day and whether the departure is routine or urgent (for example, a dismissal)
+- **Access:** Permission to disable accounts, revoke sessions, and manage devices in your identity and endpoint management tools
+- **Information:**
+  - The employee's role, manager, and department
+  - A list of their applications, shared mailboxes, shared drives, and groups
+  - A list of equipment assigned to them (laptop, phone, badge, tokens)
+  - The company's data-retention policy
+- **Contacts:** The manager (for data handover), HR, and the security team (for escalation)
 
----
-
-## Scope
-
-This runbook applies to the IT aspects of offboarding for:
-
-* Employees
-* Contractors
-* Interns
-* Temporary staff
-* Remote workers
-* Employees transferring to another department where access changes are required
-
-The exact procedure depends on the organization's identity provider, HR system, device management platform, applications, security policies, and data retention requirements.
+> **In plain English:** get approval, know what the person has access to, and know what equipment they hold before you change anything.
 
 ---
 
-# Offboarding Request
+## Troubleshooting / Implementation
 
-## 1. Confirm the Offboarding Request
+Follow these steps in order. Record the time and your name against each one.
 
-Verify that the offboarding request has been submitted through the organization's approved process.
+### 1. Confirm the request
+1. Verify the request comes from HR or an authorized manager. Do not act on an unverified message.
+2. Confirm the last working day and the exact time access should end.
+3. Check whether the departure is **urgent** (access removed immediately) or **planned** (access removed at the end of the last day).
 
-Confirm:
+### 2. Preserve data first
+1. Ask the manager what data must be kept (email, files, shared documents, project work).
+2. Transfer ownership of files and shared resources, or grant the manager access, as policy allows.
+3. Set up mailbox handling per policy (for example, forwarding, shared mailbox, or retention hold).
+4. Check retention rules **before** deleting or wiping anything.
 
-* [ ] Employee name
-* [ ] Username
-* [ ] Department
-* [ ] Manager
-* [ ] Last working date
-* [ ] Effective access termination date and time
-* [ ] Employment status
-* [ ] Reason or category where required by organizational policy
-* [ ] Whether the employee is remote or office-based
-* [ ] Required equipment to be recovered
-* [ ] Required data transfer
-* [ ] Special access considerations
+### 3. Remove access
+1. Disable the user account (do not delete it yet, unless policy says otherwise).
+2. Reset the password and revoke active sessions and sign-in tokens.
+3. Remove or reset MFA methods and saved logins.
+4. Remove the user from groups, distribution lists, and shared resources.
+5. Remove application and licence access (email, collaboration tools, line-of-business apps).
+6. Remove VPN, remote access, and Wi-Fi access.
+7. Review and remove any privileged or admin rights.
 
-Do not disable accounts based solely on an informal request without the required authorization.
+### 4. Recover equipment
+1. Arrange return of all company equipment (laptop, phone, peripherals, badges, security tokens).
+2. If equipment is not returned, record its status (lost, pending, not returned) and notify HR and the manager.
+3. For company-managed devices, lock or remotely wipe them if policy requires.
 
----
+### 5. Secure returned devices
+1. Check the device in and update the asset record.
+2. Back up any required data, then wipe or reimage according to policy.
+3. Store or reissue the device and record its new status.
 
-# Offboarding Priority
+### 6. Close out
+1. Update asset and access records.
+2. Confirm any scheduled actions (such as account deletion after a retention period) are set.
+3. Work through the **Verification** checklist below.
+4. Escalate anything unusual (see **When to escalate**).
 
-## 2. Determine the Required Timing
+### When to escalate
+Use `incident-escalation.md` if you see any of the following:
 
-Confirm whether the offboarding is:
+- Signs of data theft, unusual downloads, or unexpected forwarding rules
+- Sign-ins after the account was disabled
+- Unreturned equipment that holds sensitive data
+- An urgent or hostile departure where immediate access removal is needed
+- Admin rights or systems you cannot remove yourself
 
-* Scheduled
-* Immediate
-* Security-related
-* Related to a role transfer
-* Related to contract completion
+### Common problems
 
-For immediate or security-sensitive offboarding, coordinate with the appropriate HR, management, identity, and security teams.
-
-Access termination should follow the organization's approved offboarding schedule and authorization process.
-
----
-
-# Account Management
-
-## 3. Disable the User Account
-
-At the authorized time:
-
-1. Disable the user's organizational account.
-2. Verify the account is no longer active.
-3. Confirm that authentication is blocked.
-4. Document the action.
-
-Do not delete the account immediately unless organizational policy specifically requires it.
-
-Retaining the account in a disabled state may be necessary for audit, investigation, data retention, or administrative purposes.
-
----
-
-## 4. Revoke Active Sessions
-
-Where supported by the organization's identity platform, revoke active sessions and authentication tokens.
-
-Check for:
-
-* Active browser sessions
-* Cloud application sessions
-* Mobile sessions
-* VPN sessions
-* Remote access sessions
-* Authentication tokens
-
-This helps prevent continued access from previously authenticated devices.
+| Problem | Likely cause | What to do |
+|---|---|---|
+| User can still sign in after the account is disabled | Active session or token not revoked | Revoke all sessions and refresh tokens, then retest |
+| User still receives email on a phone | Mobile device still registered | Remove the device or wipe the work profile |
+| Manager cannot open the former employee's files | Ownership not transferred | Transfer ownership or grant access as policy allows |
+| Laptop was not returned | Employee has left or equipment is lost | Record status, notify HR, lock or wipe remotely if possible |
+| An application still lists the user as active | Separate login not tied to central identity | Remove the user directly in that application |
 
 ---
 
-## 5. Disable MFA and Authentication Methods
+## Resolution
 
-Follow the organization's identity management procedure to remove or disable authentication methods associated with the departing employee.
+The request is resolved when:
 
-Review:
+1. Every step in **Troubleshooting / Implementation** is done, or any exception is documented with a reason.
+2. The **Verification** checklist is fully ticked.
+3. HR and the manager are told the offboarding is complete.
+4. The ticket is closed with a summary of what was done, what was transferred, and any equipment still outstanding.
 
-* MFA devices
-* Authentication applications
-* Security keys
-* Registered phone numbers
-* Recovery methods
-* Trusted devices
-
-Do not remove authentication information before confirming the required audit and security procedures.
+Do not close the ticket while critical actions remain open. Escalate or assign them to an owner instead.
 
 ---
 
-# Application Access
+## Verification
 
-## 6. Remove Application Access
+An offboarding request is complete only when every item below is confirmed. Tick each box and record who confirmed it and when.
 
-Review applications assigned to the employee.
+### Access removed
+- [ ] Access termination was authorized (HR or manager approval on record)
+- [ ] User account is disabled, or handled according to company policy
+- [ ] Active sessions and sign-in methods (passwords, MFA, saved logins) are revoked
+- [ ] Application access is removed
+- [ ] Privileged or admin access has been reviewed and removed
 
-Remove or disable access to required systems, including:
+### Data and equipment
+- [ ] Business-critical data is preserved or transferred (for example, to the manager)
+- [ ] Company equipment is returned, or its status is documented (lost, pending, not returned)
+- [ ] Returned devices are secured (wiped, locked, or stored per policy)
+- [ ] Asset records are updated
+- [ ] Data-retention requirements are addressed
 
-* Business applications
-* Cloud services
-* Collaboration platforms
-* File storage
-* CRM systems
-* HR systems
-* Financial applications
-* Development platforms
-* Administrative tools
-* Remote access systems
+### Wrap-up
+- [ ] Any security concerns are escalated (see `incident-escalation.md`)
+- [ ] Documentation is complete
+- [ ] No critical offboarding actions remain unresolved
 
-Where application access is controlled through centralized identity groups, removing the relevant account or group membership may automatically revoke access.
-
----
-
-## 7. Review Privileged Access
-
-Determine whether the employee had elevated permissions.
-
-Check for:
-
-* Administrator accounts
-* Privileged groups
-* Server access
-* Cloud administrator roles
-* Database access
-* Security administration
-* Network administration
-* Application administration
-* Developer credentials
-
-Privileged access should be reviewed carefully and escalated to the appropriate security or infrastructure team where required.
+> **In plain English:** the person can no longer get into anything, the company's data and equipment are accounted for, and there is a record proving it.
 
 ---
 
-# Email and Collaboration
+## Prevention
 
-## 8. Secure the Email Account
+Most offboarding problems come from manual steps, missed systems, or poor communication. These practices reduce the risk of something being forgotten.
 
-Follow organizational policy for handling the employee's mailbox.
+### Automate where possible
+- **Automate account deprovisioning:** Accounts are disabled automatically, not by memory
+- **Automate session revocation:** Signed-in devices and apps are logged out immediately
+- **Integrate HR and identity systems:** When HR records a departure, IT is notified automatically
 
-Possible actions include:
+### Control who has access
+- **Use role-based access controls:** Access is tied to job roles, so removing the role removes the access
+- **Use centralized identity management:** One place to disable a user, instead of many separate systems
+- **Review privileged access regularly:** Admin rights are checked on a schedule, not just at departure
+- **Conduct periodic access reviews:** Catch accounts and permissions that should no longer exist
 
-* Disable sign-in
-* Preserve the mailbox
-* Configure an approved automatic response
-* Transfer ownership where authorized
-* Grant approved delegate access
-* Retain data according to policy
+### Keep clear records
+- **Maintain standardized offboarding checklists:** The same steps are followed every time
+- **Maintain accurate asset inventories:** You know what equipment each person holds
+- **Track equipment returns:** Unreturned devices are chased, not forgotten
+- **Maintain documented data-retention procedures:** Clear rules on what is kept, for how long, and who owns it
 
-Do not automatically forward all incoming email to another employee unless explicitly authorized.
-
----
-
-## 9. Handle Collaboration Accounts
-
-Review collaboration services such as:
-
-* Microsoft Teams
-* Slack
-* Zoom
-* Other approved communication platforms
-
-Determine whether:
-
-* Account access should be disabled
-* Ownership needs to be transferred
-* Business-critical files need to be preserved
-* Meetings or resources need reassignment
-* Team memberships need updating
-
-Follow organizational retention and data-handling policies.
+### Learn from mistakes
+- **Audit completed offboarding requests:** Spot-check that nothing was missed
+- **Review recurring failures:** If the same step keeps being missed, fix the process, not just the ticket
 
 ---
 
-# File and Data Management
+## Lessons Learned
 
-## 10. Identify Business-Critical Data
+Key takeaways from this process. Add real examples from your own lab or work as you gain experience.
 
-Determine whether the employee has business data stored in:
+- **Preserve data before removing access.** Once an account is deleted, recovering its data can be difficult or impossible.
+- **Disable first, delete later.** Disabling is reversible; deletion often is not.
+- **Disabling the account is not enough.** Active sessions, tokens, mobile devices, and separate app logins can keep working until revoked.
+- **Hidden access is the biggest risk.** Shared mailboxes, group memberships, and apps with their own logins are the most commonly missed items.
+- **Equipment tracking needs good records.** Without an accurate asset inventory, you cannot tell what is missing.
+- **Communication matters as much as technology.** Late or incomplete notice from HR is the most common cause of delayed offboarding.
 
-* OneDrive or equivalent cloud storage
-* SharePoint
-* Network drives
-* Local computer storage
-* Shared folders
-* Business applications
-* Project repositories
-* Email
+### My notes
+_Add your own lessons here from lab exercises or real offboarding experience:_
 
-Work with the employee's manager or designated data owner to determine what information needs to be retained or transferred.
-
----
-
-## 11. Transfer Required Business Data
-
-Where authorized:
-
-* Identify required files
-* Identify the approved recipient or data owner
-* Transfer ownership where supported
-* Verify the transfer
-* Preserve required permissions
-* Document completion
-
-Do not transfer personal or unnecessary data simply because it exists on the employee's device or account.
+- 
 
 ---
 
-# Device Recovery
-
-## 12. Identify Assigned Equipment
-
-Review the asset management system and identify equipment assigned to the employee.
-
-Examples include:
-
-* Laptop
-* Desktop computer
-* Mobile phone
-* Tablet
-* Monitor
-* Docking station
-* Keyboard
-* Mouse
-* Headset
-* Security keys
-* Power adapters
-* Other company-owned equipment
-
-Confirm the expected equipment list before recovery.
-
----
-
-## 13. Recover Company Equipment
-
-For office-based employees:
-
-* [ ] Collect laptop
-* [ ] Collect power adapter
-* [ ] Collect docking station
-* [ ] Collect monitors
-* [ ] Collect peripherals
-* [ ] Collect mobile devices
-* [ ] Collect security keys
-* [ ] Confirm equipment condition
-
-For remote employees, follow the organization's approved equipment return and shipping process.
-
----
-
-## 14. Inspect Returned Equipment
-
-Check:
-
-* [ ] Device is physically present
-* [ ] Asset tag matches records
-* [ ] Serial number matches records
-* [ ] Accessories are accounted for
-* [ ] Physical condition documented
-* [ ] Damage documented where applicable
-
-Do not access an employee's personal files or personal accounts during equipment inspection.
-
----
-
-# Device Security
-
-## 15. Secure the Returned Device
-
-Once the device is recovered:
-
-1. Confirm the device is no longer assigned for active use.
-2. Place it into the appropriate asset status.
-3. Preserve required business data according to policy.
-4. Follow approved device wipe or reimaging procedures.
-5. Remove previous user configuration where required.
-6. Prepare the device for storage, reassignment, or disposal.
-
-Do not wipe a device before confirming that required business data has been preserved.
-
----
-
-## 16. Revoke Device Access
-
-Where applicable, remove the device from active user assignments.
-
-Check:
-
-* Device management platform
-* Endpoint security platform
-* Identity platform
-* VPN systems
-* Mobile device management
-* Certificate infrastructure
-
-The device may need to remain enrolled for security or investigation purposes depending on the circumstances of the departure.
-
----
-
-# Mobile Devices
-
-## 17. Process Company Mobile Devices
-
-For company-issued phones or tablets:
-
-* [ ] Recover device
-* [ ] Verify asset information
-* [ ] Confirm device ownership
-* [ ] Remove user assignment
-* [ ] Review mobile device management status
-* [ ] Protect business data
-* [ ] Perform approved device reset where required
-* [ ] Update asset records
-
-Do not remove a device from management before confirming the appropriate security and data-retention requirements.
-
----
-
-# Access Review
-
-## 18. Perform Final Access Review
-
-Confirm that access has been removed from required systems.
-
-Review:
-
-* [ ] Organizational account
-* [ ] Email
-* [ ] MFA
-* [ ] VPN
-* [ ] Cloud applications
-* [ ] Business applications
-* [ ] File storage
-* [ ] Network drives
-* [ ] Remote desktop
-* [ ] Privileged accounts
-* [ ] Administrative groups
-* [ ] Collaboration platforms
-* [ ] Mobile device management
-* [ ] Other role-specific systems
-
-The exact systems reviewed should reflect the employee's role.
-
----
-
-# Asset Management
-
-## 19. Update Asset Records
-
-Update the organization's asset management system.
-
-Record:
-
-* Asset status
-* Returned date
-* Device condition
-* Assigned user
-* New asset status
-* Accessories returned
-* Damage where applicable
-* Storage or reassignment status
-
-Ensure the physical equipment matches the asset records.
-
----
-
-# Account Retention and Deletion
-
-## 20. Follow Data Retention Requirements
-
-Do not immediately delete user accounts, mailboxes, files, or devices unless required by organizational policy.
-
-Determine:
-
-* Required retention period
-* Legal or regulatory requirements
-* Business retention requirements
-* Security investigation requirements
-* Manager or data owner requirements
-
-Coordinate with the appropriate legal, HR, compliance, or security teams when necessary.
-
----
-
-# Security Considerations
-
-## 21. Review for Security Risks
-
-For standard offboarding, complete the approved access removal process.
-
-For involuntary, immediate, or security-sensitive departures, coordinate with the appropriate security and management teams.
-
-Potential indicators requiring additional attention include:
-
-* Privileged access
-* Suspicious recent activity
-* Unusual data transfers
-* Unauthorized devices
-* Unknown authentication sessions
-* Unexpected account activity
-* Missing company equipment
-
-Do not conduct an independent investigation beyond your authorization. Escalate suspected security incidents through the organization's incident response process.
-
----
-
-# Common Offboarding Scenarios
-
-| Scenario                               | Required Action                      | Additional Consideration                          |
-| -------------------------------------- | ------------------------------------ | ------------------------------------------------- |
-| Standard employee departure            | Disable account and remove access    | Recover equipment and preserve required data      |
-| Immediate termination                  | Coordinate immediate access removal  | Follow security and HR procedures                 |
-| Remote employee departure              | Disable access and recover equipment | Follow approved return/shipping process           |
-| Contractor completion                  | Disable account and remove access    | Verify all temporary access is revoked            |
-| Department transfer                    | Review and modify access             | Do not necessarily disable the employee's account |
-| Lost company laptop during offboarding | Disable access and secure device     | Escalate as a potential security incident         |
-| Employee had privileged access         | Revoke elevated permissions          | Conduct additional access review                  |
-| Business-critical mailbox              | Preserve and transfer appropriately  | Follow approved data-retention procedure          |
-| Missing company equipment              | Document missing assets              | Escalate according to asset and security policy   |
-
----
-
-# Verification Checklist
-
-* [ ] Offboarding request authorized
-* [ ] Last working date and access termination time confirmed
-* [ ] User account disabled
-* [ ] Active sessions revoked
-* [ ] Authentication methods reviewed
-* [ ] MFA access handled
-* [ ] Application access removed
-* [ ] Privileged access reviewed
-* [ ] Email access secured
-* [ ] Collaboration access reviewed
-* [ ] Business data identified
-* [ ] Required data transferred or preserved
-* [ ] Company equipment identified
-* [ ] Equipment recovered
-* [ ] Equipment condition documented
-* [ ] Device access reviewed
-* [ ] Returned devices secured
-* [ ] Mobile devices processed where applicable
-* [ ] Asset records updated
-* [ ] Retention requirements reviewed
-* [ ] Final access review completed
-* [ ] Security concerns escalated where required
-* [ ] Offboarding ticket updated
-* [ ] Completion confirmed
-
----
-
-# Escalation Criteria
-
-Escalate the offboarding request to the appropriate HR, security, identity, infrastructure, legal, compliance, or management team when:
-
-* Access termination timing is unclear
-* Authorization is missing
-* The employee has privileged access
-* The employee is involved in a security investigation
-* Company equipment is missing
-* Business-critical data requires special handling
-* Legal or regulatory retention requirements apply
-* An account cannot be disabled
-* Active sessions cannot be revoked
-* Application access cannot be removed
-* Data ownership cannot be transferred
-* A device cannot be securely wiped
-* Suspicious activity is identified
-* The employee has access to critical infrastructure
-
-Provide the escalation team with:
-
-* Employee identifier
-* Offboarding effective date and time
-* Systems affected
-* Access removed
-* Access remaining
-* Equipment status
-* Data handling status
-* Error messages
-* Troubleshooting performed
-* Security concerns
-* Outstanding actions
-
----
-
-# Documentation Requirements
-
-Record the following information in the offboarding ticket:
-
-* Employee identifier
-* Department
-* Manager
-* Offboarding date
-* Access termination time
-* Account status
-* Systems reviewed
-* Access removed
-* Equipment recovered
-* Asset information
-* Data transfer or retention actions
-* Security actions
-* Outstanding issues
-* Escalations
-* Completion status
-
-Do not record passwords, MFA codes, authentication tokens, recovery keys, or other sensitive credentials.
-
----
-
-# Prevention and Process Improvement
-
-Organizations can improve employee offboarding by:
-
-* Automating account deprovisioning
-* Integrating HR and identity systems
-* Using role-based access controls
-* Maintaining accurate asset inventories
-* Maintaining standardized offboarding checklists
-* Reviewing privileged access regularly
-* Automating session revocation
-* Maintaining documented data-retention procedures
-* Tracking equipment returns
-* Using centralized identity management
-* Conducting periodic access reviews
-* Auditing completed offboarding requests
-* Reviewing recurring offboarding failures
-
----
-
-# Completion Criteria
-
-The IT offboarding request can be considered complete when:
-
-* Authorized access termination has occurred
-* User account is disabled or otherwise handled according to policy
-* Active sessions and authentication methods are addressed
-* Application access is removed
-* Privileged access is reviewed
-* Business-critical data is preserved or transferred appropriately
-* Company equipment is recovered or its status documented
-* Returned devices are secured
-* Asset records are updated
-* Data-retention requirements are addressed
-* Security concerns are escalated where necessary
-* Documentation is complete
-* No unresolved critical offboarding actions remain
+## References
+
+Use official documentation for the platforms in your environment.
+
+- NIST SP 800-53, Security and Privacy Controls (see the Account Management control family, AC-2)
+- CIS Critical Security Controls (Account Management and Access Control Management)
+- Microsoft Learn: Microsoft Entra ID and Microsoft 365 documentation on disabling users, revoking sessions, and mailbox handling
+- Microsoft Learn: Active Directory documentation on disabling and managing user accounts (if applicable)
+- Your organization's data-retention, acceptable-use, and asset-management policies
