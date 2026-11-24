@@ -1,623 +1,389 @@
 # Laptop Setup Checklist
 
-## Overview
+**Summary:** A repeatable process for preparing a Windows laptop before it goes to a user, so every device is secure, up to date, managed, tested, and recorded the same way.
 
-This runbook provides a standardized procedure for **laptop setup and configuration** in an IT support environment.
+**Environment:** Controlled IT support environment (Windows 10/11 business laptops, device management platform such as Microsoft Intune or similar, identity provider, asset management system)
 
-A consistent laptop setup process helps ensure that new or reassigned devices are secure, properly configured, compliant with organizational standards, and ready for productive use.
+**Applies to:** New, replacement, reassigned, and refurbished company laptops
 
-The objective of this runbook is to provide IT Support and Service Desk personnel with a repeatable process for preparing Windows laptops before handing them over to users.
+**Related runbooks:** `new-employee-onboarding.md`, `employee-offboarding.md`, `wi-fi-connectivity.md`, `vpn-troubleshooting.md`, `slow-computer-troubleshooting.md`, `blue-screen-of-death-bsod.md`, `account-lockout.md`, `password-reset.md`, `incident-escalation.md`
 
----
-
-## Purpose
-
-This procedure is intended to help IT Support personnel:
-
-* Prepare new or reassigned laptops
-* Verify hardware functionality
-* Install and configure Windows
-* Apply required updates
-* Configure organizational accounts
-* Enroll devices in endpoint management
-* Install approved applications
-* Configure security controls
-* Verify network connectivity
-* Confirm device compliance
-* Prepare the laptop for the user
+> **In plain English:** this is the "pre-flight check" for a laptop. Before someone gets it, we confirm it works, is protected, has the right software, and is written down in our records.
 
 ---
 
-## Scope
+## Prerequisites
 
-This checklist applies to:
+Before starting, make sure you have:
 
-* New laptops
-* Replacement laptops
-* Reassigned laptops
-* Refurbished organizational laptops
-* Standard Windows business devices
+- **The device:** laptop, power adapter, and any dock or accessories
+- **Assignment details:** user name, department, role, required applications, and permissions (from the onboarding or service request)
+- **Access:** rights to your device management platform, identity system, and asset management system
+- **Approved sources:** your organization's approved images, drivers, and software packages
+- **A reliable network connection** for provisioning and updates
+- **Policies at hand:** naming convention, encryption, data handling, and security baseline
 
-The exact setup process may vary depending on the organization's device management platform, identity provider, security requirements, software standards, and hardware configuration.
-
----
-
-# Pre-Setup Requirements
-
-## 1. Confirm the Device
-
-Verify:
-
-* [ ] Laptop make and model
-* [ ] Serial number
-* [ ] Asset tag
-* [ ] Device name, if already assigned
-* [ ] Power adapter
-* [ ] Docking station, if applicable
-* [ ] Other required accessories
-
-Record the required asset information according to organizational procedures.
+> **Note:** Never write passwords, MFA codes, or BitLocker recovery keys in setup notes or tickets. Use approved processes only.
 
 ---
 
-## 2. Confirm the User Assignment
+## Troubleshooting / Implementation
 
-Verify:
+Work through the phases in order. Tick items as you go.
 
-* [ ] User name
-* [ ] Department or team
-* [ ] Job role
-* [ ] Required applications
-* [ ] Required hardware or peripherals
-* [ ] Required access permissions
-* [ ] Device assignment details
+### Phase 1: Confirm the device and the user
+- [ ] Make and model, serial number, and asset tag recorded
+- [ ] Power adapter, dock, and accessories present
+- [ ] Device name assigned (if already allocated)
+- [ ] User name, department, role, and device assignment confirmed
+- [ ] Required applications, hardware, and permissions identified
 
-Use the organization's approved asset management or service management system.
+Check the serial number against the asset record:
 
-Do not record passwords or authentication secrets in setup documentation.
+```powershell
+Get-CimInstance Win32_BIOS | Select-Object SerialNumber
+```
 
----
+### Phase 2: Inspect the hardware
+- [ ] Screen, keyboard, touchpad, and casing
+- [ ] Hinges and power button
+- [ ] USB, USB-C, HDMI/display, audio, and charging ports
+- [ ] Webcam, microphone, and speakers
+- [ ] Wireless adapter present
 
-# Hardware Inspection
+Document any damage **before** assigning the device.
 
-## 3. Inspect the Laptop
+### Phase 3: Check power and battery
+- [ ] AC adapter works and laptop charges
+- [ ] Battery is detected, healthy, and runs the laptop on battery power
+- [ ] Charging indicator works
 
-Check the physical condition of the device.
+Generate a battery health report:
 
-Inspect:
+```cmd
+powercfg /batteryreport
+```
 
-* [ ] Screen
-* [ ] Keyboard
-* [ ] Touchpad
-* [ ] Power button
-* [ ] USB ports
-* [ ] USB-C ports
-* [ ] HDMI or display ports
-* [ ] Audio ports
-* [ ] Webcam
-* [ ] Microphone
-* [ ] Speakers
-* [ ] Charging port
-* [ ] Wireless adapter
-* [ ] Physical casing
-* [ ] Hinges
+Escalate battery or charging faults before deployment.
 
-Document any physical damage before assigning the device.
+### Phase 4: Install or reset Windows
+1. Start Windows setup and choose language, region, and keyboard.
+2. Connect to an approved network.
+3. Apply your organization's provisioning process (for example, Windows Autopilot or an approved image).
+4. For reassigned devices, use the approved reset, wipe, or reimage process and make sure previous user data is removed per policy.
 
----
+### Phase 5: Name and enroll the device
+- [ ] Name follows the naming standard and is unique
+- [ ] Name is recorded in the asset system
+- [ ] Device is enrolled in the management platform
+- [ ] Device appears in the console with the correct user
+- [ ] Policies and configuration profiles applied
+- [ ] Compliance status reports correctly
 
-## 4. Verify Power and Battery
+Allow time for policies and apps to sync. To check join and enrollment status:
 
-Check:
+```cmd
+dsregcmd /status
+```
 
-* [ ] AC adapter functions correctly
-* [ ] Laptop charges correctly
-* [ ] Battery is detected
-* [ ] Battery health is acceptable
-* [ ] Laptop operates on battery power
-* [ ] Charging indicator functions correctly
+### Phase 6: Update Windows and drivers
+- [ ] Approved Windows updates installed
+- [ ] Required security and driver updates installed
+- [ ] Restarts completed, then rechecked for more updates
+- [ ] **Device Manager** shows no warnings or unknown devices
 
-Escalate battery or charging problems before deployment.
+Check drivers for chipset, graphics, network, Wi-Fi, Bluetooth, audio, storage, camera, touchpad, and dock. Use only approved driver sources.
 
----
-
-# Operating System Setup
-
-## 5. Install or Reset Windows
-
-For a new or reassigned laptop:
-
-1. Start the Windows setup process.
-2. Select the required language.
-3. Select the appropriate region.
-4. Configure keyboard settings.
-5. Connect to an approved network.
-6. Apply the organization's provisioning process.
-7. Complete the required Windows setup.
-
-For reassigned devices, follow the organization's approved device reset, wipe, or reimaging procedure.
-
-Ensure previous user data is removed according to organizational security and data-handling requirements.
-
----
-
-# Device Naming and Enrollment
-
-## 6. Configure the Device Name
-
-Assign the device name according to the organization's naming convention.
-
-Verify:
-
-* [ ] Device name follows the approved naming standard
-* [ ] Device name is unique
-* [ ] Device name is documented in the asset system
-
-Avoid manually assigning names that conflict with organizational naming standards.
-
----
-
-## 7. Enroll the Device in Management
-
-Enroll the laptop in the organization's approved device management platform.
-
-Verify:
-
-* [ ] Device enrollment completed
-* [ ] Device appears in management console
-* [ ] Correct user assignment
-* [ ] Required policies applied
-* [ ] Compliance status is reported correctly
-* [ ] Configuration profiles are applied
-
-Allow sufficient time for policies and applications to synchronize.
-
----
-
-# Windows Updates
-
-## 8. Install Windows Updates
-
-Check Windows Update and install approved updates.
-
-Verify:
-
-* [ ] Windows is fully updated
-* [ ] Required security updates installed
-* [ ] Required driver updates installed
-* [ ] No critical update failures
-* [ ] Required restart completed
-
-Restart the device when required and check for additional updates afterward.
-
----
-
-# Driver Configuration
-
-## 9. Verify Device Drivers
-
-Check Device Manager for hardware issues.
-
-Verify drivers for:
-
-* [ ] Chipset
-* [ ] Graphics
-* [ ] Network adapter
-* [ ] Wi-Fi adapter
-* [ ] Bluetooth
-* [ ] Audio
-* [ ] Storage
-* [ ] Camera
-* [ ] Touchpad
-* [ ] Docking station
-* [ ] Other required hardware
-
-Check for warning icons or unknown devices.
-
-Use only approved driver sources and organizational deployment procedures.
-
----
-
-# User Account Configuration
-
-## 10. Configure the User Account
-
-Set up the user's organizational account according to company procedures.
-
-Verify:
-
-* [ ] Correct user account
-* [ ] Appropriate authentication method
-* [ ] Required MFA enrollment
-* [ ] Correct organizational access
-* [ ] Correct device-user association
+### Phase 7: Configure the user account
+- [ ] Correct user account and device-user association
+- [ ] Authentication method set up
+- [ ] MFA enrollment completed where required
+- [ ] Correct organizational access
 
 Do not handle or store user passwords outside approved authentication processes.
 
----
+### Phase 8: Confirm security controls
+Do **not** disable security controls to speed up deployment.
 
-# Security Configuration
+- [ ] Antivirus or endpoint protection active
+- [ ] Firewall enabled
+- [ ] Endpoint detection and response (EDR) active, where used
+- [ ] Device encryption enabled (BitLocker or required solution)
+- [ ] Recovery information stored according to policy
+- [ ] Secure Boot enabled where required
+- [ ] Screen lock and security policies applied
+- [ ] No unnecessary local administrator access
 
-## 11. Verify Endpoint Security
+Useful checks:
 
-Confirm that required security controls are active.
+```powershell
+Get-BitLockerVolume
+Get-Tpm
+Confirm-SecureBootUEFI
+Get-NetFirewallProfile | Select-Object Name, Enabled
+Get-MpComputerStatus | Select-Object AntivirusEnabled, RealTimeProtectionEnabled
+net localgroup administrators
+```
 
-Check:
+> **Note:** `Get-MpComputerStatus` reports Microsoft Defender only. If your organization uses another endpoint protection product, check it in that product's console.
 
-* [ ] Antivirus/endpoint protection
-* [ ] Firewall
-* [ ] Endpoint detection and response
-* [ ] Device encryption
-* [ ] Secure Boot
-* [ ] Security policies
-* [ ] Screen lock policies
-* [ ] Automatic security updates
-* [ ] Device compliance
+### Phase 9: Install and license applications
+Install role-specific software from **approved sources only**, such as:
 
-Do not disable security controls to speed up the deployment process.
+- Office productivity, browser, collaboration, and PDF tools
+- VPN client and remote support tools
+- Security software
+- Business-specific applications
 
----
+Then confirm:
 
-## 12. Verify Device Encryption
+- [ ] Applications are licensed and activate correctly
+- [ ] The user has the right permissions
+- [ ] Business applications are reachable
 
-Confirm that the organization's required encryption solution is enabled.
+Do not use personal accounts or unauthorized licenses. To check Windows activation:
 
-For Windows devices using BitLocker, verify the appropriate encryption status.
+```cmd
+slmgr /xpr
+```
 
-Where applicable:
+### Phase 10: Test networking
+**Wi-Fi**
+- [ ] Adapter works and correct SSID is visible
+- [ ] Authentication works and an IP address is received
+- [ ] Internet and internal resources are reachable
 
-* [ ] Encryption enabled
-* [ ] Device meets encryption requirements
-* [ ] Recovery information is stored according to organizational policy
+**Ethernet and docking station** (if used)
+- [ ] Ethernet, external displays, and USB devices work
+- [ ] Laptop charges through the dock where supported
+- [ ] Network switches correctly when docking and undocking
 
-Never place recovery keys in unsecured documentation or personal notes.
+**VPN** (if remote access is required)
+- [ ] Approved client and profile installed
+- [ ] Sign-in and MFA work
+- [ ] VPN connects and internal resources are reachable
 
----
+Quick connectivity check:
 
-# Application Installation
+```cmd
+ipconfig /all
+ping 8.8.8.8
+```
 
-## 13. Install Required Applications
+> **Note:** If a connection fails, use `wi-fi-connectivity.md` or `vpn-troubleshooting.md`.
 
-Install the applications required for the user's role.
+### Phase 11: Apply user environment settings
+Apply **approved** organizational settings only:
 
-Common examples include:
+- Desktop and Start menu configuration
+- Browser settings and corporate bookmarks
+- Default applications and email setup
+- File synchronization and collaboration tools
+- Network drive mappings where applicable
 
-* Office productivity applications
-* Web browsers
-* Collaboration software
-* PDF software
-* VPN client
-* Remote support tools
-* Security software
-* Business-specific applications
-* Communication applications
+Avoid unnecessary personal customization during standard setup.
 
-Verify that all software comes from approved organizational sources.
+### Phase 12: Migrate data (replacement or reassigned devices)
+- [ ] Required files backed up
+- [ ] Approved cloud sync configured
+- [ ] Required business data transferred
+- [ ] Previous device data handled securely (and wiped per policy)
+- [ ] Transfer completed successfully
 
----
+Never copy sensitive business data to unauthorized storage.
 
-## 14. Verify Application Licensing
+### Phase 13: Test peripherals
+- [ ] External monitor, keyboard, mouse, and headset
+- [ ] Webcam and microphone (test audio in and out for video calls)
+- [ ] Docking station
+- [ ] Printer, where required
 
-Confirm:
+### Phase 14: Run functional and health checks
+Test as the user would use it:
 
-* [ ] Required applications are licensed
-* [ ] User has the required application permissions
-* [ ] Applications activate correctly
-* [ ] Business applications are accessible
+- [ ] Windows sign-in and user account
+- [ ] Internet, Wi-Fi, and VPN
+- [ ] Required applications, email, and collaboration tools
+- [ ] File access and internal resources
+- [ ] Audio, microphone, webcam, and external display
 
-Avoid using personal accounts or unauthorized licenses for organizational software.
+System health:
 
----
+- [ ] CPU, memory, and storage recognized correctly
+- [ ] Enough free disk space
+- [ ] No unresolved Device Manager errors or critical Windows errors
+- [ ] Battery works normally and temperature looks normal
+- [ ] No unexpected performance problems
 
-# Network Configuration
+```powershell
+Get-ComputerInfo | Select-Object CsName, OsName, OsVersion, CsTotalPhysicalMemory
+Get-PhysicalDisk | Select-Object FriendlyName, HealthStatus
+Get-PSDrive C
+```
 
-## 15. Test Wi-Fi
+### Phase 15: Update asset records
+Record in the asset system:
 
-Connect to the appropriate wireless network.
+- Asset tag, serial number, and model
+- Assigned user and department
+- Device name and operating system
+- Deployment date
+- Warranty information, where applicable
+- Accessories issued and device status
 
-Verify:
+### Common setup problems
 
-* [ ] Wi-Fi adapter works
-* [ ] Correct SSID is available
-* [ ] Authentication works
-* [ ] Device receives an IP address
-* [ ] Internet connectivity works
-* [ ] Required internal network resources are accessible
+| Problem | Likely cause | What to do |
+|---|---|---|
+| Device does not appear in the management console | Enrollment incomplete or no network | Check connectivity, then re-run enrollment |
+| Policies or apps not applying | Sync not finished | Wait, force a sync, and recheck compliance |
+| Windows will not activate | Licensing or network issue | Check licensing and connectivity, then escalate |
+| BitLocker will not enable | TPM disabled or policy conflict | Check TPM and BIOS settings, then escalate |
+| Software will not install | Missing license or permissions | Check licensing and approved source, then escalate |
+| Wi-Fi or VPN fails | Profile, certificate, or credentials | Follow the related runbook |
+| Unknown device in Device Manager | Missing driver | Install the approved driver |
+| Laptop crashes during setup | Driver or hardware fault | Follow `blue-screen-of-death-bsod.md` |
+| Setup is slow or sluggish | Updates running, low resources | Wait for updates, then see `slow-computer-troubleshooting.md` |
 
-For troubleshooting, follow the [Wi-Fi Connectivity](wi-fi-connectivity.md) runbook.
+### When to escalate
+Use `incident-escalation.md` when:
 
----
+- Hardware is defective or diagnostics fail
+- Device enrollment fails
+- Security policies cannot be applied
+- Windows activation fails
+- Required applications cannot be installed or licensed
+- Network access cannot be established
+- VPN setup needs administrative changes
+- Encryption cannot be enabled
+- The device does not meet security requirements
+- The fix needs permissions beyond your authority
 
-## 16. Test Ethernet and Docking Station
-
-If the laptop uses a docking station:
-
-* [ ] Ethernet connection works
-* [ ] External displays work
-* [ ] USB devices work
-* [ ] Docking station firmware is appropriate
-* [ ] Laptop charges through the dock where supported
-
-Verify that network connectivity switches correctly when connecting and disconnecting from the dock.
-
----
-
-## 17. Configure and Test VPN
-
-If remote access is required:
-
-* [ ] Approved VPN client installed
-* [ ] Correct VPN profile applied
-* [ ] Authentication works
-* [ ] MFA works
-* [ ] VPN connection established
-* [ ] Internal resources accessible
-
-Follow the [VPN Troubleshooting](vpn-troubleshooting.md) runbook if problems occur.
-
----
-
-# Peripheral Testing
-
-## 18. Test Standard Peripherals
-
-Verify required peripherals:
-
-* [ ] External monitor
-* [ ] Keyboard
-* [ ] Mouse
-* [ ] Headset
-* [ ] Webcam
-* [ ] Microphone
-* [ ] Docking station
-* [ ] Printer where required
-
-Test audio input and output if the user's role requires video conferencing.
-
----
-
-# User Environment
-
-## 19. Configure Required User Settings
-
-Apply approved organizational settings such as:
-
-* Desktop configuration
-* Start menu configuration
-* Browser settings
-* Default applications
-* File synchronization
-* Corporate bookmarks
-* Email configuration
-* Collaboration tools
-* Network drive mappings where applicable
-
-Avoid unnecessary personal customization during the standard setup process.
-
----
-
-# Data and Migration
-
-## 20. Migrate User Data
-
-For replacement or reassigned devices, follow the organization's approved data migration process.
-
-Verify:
-
-* [ ] Required files backed up
-* [ ] Approved cloud synchronization configured
-* [ ] Required business data transferred
-* [ ] Previous device data handled securely
-* [ ] Data transfer completed successfully
-
-Do not copy sensitive business data to unauthorized storage locations.
+Before escalating, record the problem, what you tried, error messages, and the device's current status.
 
 ---
 
-# Testing
+## Resolution
 
-## 21. Perform Functional Testing
+A laptop is ready for handover once all setup phases are complete and the Verification checklist is fully ticked.
 
-Before handing over the laptop, test:
+### Prepare for handover
+- [ ] Laptop cleaned
+- [ ] Power adapter and accessories included
+- [ ] User account verified
+- [ ] Applications installed and network access tested
+- [ ] VPN tested where required
+- [ ] Security controls verified
+- [ ] Asset record updated
 
-* [ ] Windows login
-* [ ] User account
-* [ ] Internet access
-* [ ] Wi-Fi
-* [ ] VPN
-* [ ] Required applications
-* [ ] Email
-* [ ] Collaboration tools
-* [ ] Web browser
-* [ ] Audio
-* [ ] Microphone
-* [ ] Webcam
-* [ ] External display
-* [ ] Docking station
-* [ ] File access
-* [ ] Required internal resources
+### Brief the user
+Explain, at a level suited to their role:
 
-Testing should reflect the user's actual role where possible.
+- How to sign in and lock the device when unattended
+- How to connect to Wi-Fi and use the VPN
+- How to reach business applications
+- How to contact IT Support and report problems
+- How to protect company information and handle company equipment
 
----
-
-# Performance and Health Check
-
-## 22. Verify Basic System Health
-
-Check:
-
-* [ ] CPU functioning normally
-* [ ] Memory recognized correctly
-* [ ] Storage functioning correctly
-* [ ] Adequate available disk space
-* [ ] No unresolved Device Manager errors
-* [ ] No critical Windows errors
-* [ ] Battery functioning normally
-* [ ] Device temperature appears normal
-* [ ] No unexpected performance problems
-
-Resolve or document outstanding issues before deployment.
+### Close the request
+1. Record the handover date and the user's acknowledgment (per your organization's process).
+2. Update the ticket with what was set up, any exceptions, and any outstanding items.
+3. Close the request only when no critical issues remain.
 
 ---
 
-# Final Security Check
+## Verification
 
-## 23. Confirm Security Baseline
+Final deployment checklist. All items must be confirmed before handover.
 
-Before handover, verify:
+### Device and records
+- [ ] Hardware inspected and any damage documented
+- [ ] Asset information recorded and records updated
+- [ ] User assignment confirmed
+- [ ] Device name configured and unique
 
-* [ ] Device encryption enabled
-* [ ] Endpoint protection active
-* [ ] Firewall enabled
-* [ ] Secure Boot enabled where required
-* [ ] Windows updates applied
-* [ ] Device management active
-* [ ] Security policies applied
-* [ ] User has appropriate permissions
-* [ ] No unnecessary local administrator access
-* [ ] No unauthorized software installed
+### Software and management
+- [ ] Windows installed or reset
+- [ ] Device enrolled and compliant in management
+- [ ] Windows updates and drivers verified
+- [ ] Required applications installed and licensed
+- [ ] User account and MFA configured
 
----
+### Security baseline
+- [ ] Endpoint protection active
+- [ ] Firewall enabled
+- [ ] Device encryption enabled and recovery info stored per policy
+- [ ] Secure Boot enabled where required
+- [ ] Security policies applied
+- [ ] No unnecessary local administrator access
+- [ ] No unauthorized software installed
 
-# Asset Documentation
+### Connectivity and function
+- [ ] Wi-Fi tested
+- [ ] Ethernet and docking station tested where required
+- [ ] VPN tested where required
+- [ ] Peripherals tested
+- [ ] User data migrated where required
+- [ ] Functional testing completed
+- [ ] System health checked
 
-## 24. Update Asset Records
+### Handover
+- [ ] Accessories confirmed
+- [ ] User briefed
+- [ ] Handover completed and documented
 
-Record the appropriate information in the organization's asset management system.
-
-Document:
-
-* Asset tag
-* Serial number
-* Device model
-* Assigned user
-* Department
-* Device name
-* Deployment date
-* Operating system
-* Warranty information where applicable
-* Accessories issued
-* Device status
-
----
-
-# User Handover
-
-## 25. Prepare the Laptop for the User
-
-Before handover:
-
-* [ ] Laptop cleaned appropriately
-* [ ] Power adapter included
-* [ ] Required accessories included
-* [ ] User account verified
-* [ ] Required applications installed
-* [ ] Network access tested
-* [ ] VPN tested where required
-* [ ] Security controls verified
-* [ ] Asset record updated
+> **In plain English:** the laptop is protected, working, and written into our records, and the user knows how to use it and where to get help.
 
 ---
 
-## 26. Provide Basic User Guidance
+## Prevention
 
-Explain relevant procedures such as:
+Most setup problems come from manual steps, inconsistent images, and missed checks. These practices reduce them.
 
-* How to sign in
-* How to connect to Wi-Fi
-* How to use VPN
-* How to access business applications
-* How to contact IT Support
-* How to report technical problems
-* How to protect company information
-* How to lock the device when unattended
-* How to handle company equipment
+### Standardize
+- **Use a standard, regularly updated image or provisioning profile** (for example, Windows Autopilot)
+- **Use one approved checklist** for every device
+- **Enforce the naming convention** automatically where possible
 
-The amount of training should be appropriate to the user's role and organizational requirements.
+### Automate
+- **Automate enrollment, policies, and application deployment** through your management platform
+- **Automate compliance reporting** so security gaps show up straight away
+- **Pre-stage common drivers and software** to cut setup time
 
----
+### Keep records
+- **Keep asset records accurate** and updated at every handover
+- **Track warranty and lifecycle dates**
+- **Record recurring setup issues** and fix them in the image or process
 
-# Final Deployment Checklist
-
-* [ ] Hardware inspected
-* [ ] Asset information recorded
-* [ ] User assignment confirmed
-* [ ] Windows installed or reset
-* [ ] Device name configured
-* [ ] Device enrolled in management
-* [ ] Windows updates installed
-* [ ] Drivers verified
-* [ ] User account configured
-* [ ] MFA configured where required
-* [ ] Endpoint security verified
-* [ ] Device encryption verified
-* [ ] Required applications installed
-* [ ] Software licensing verified
-* [ ] Wi-Fi tested
-* [ ] Ethernet tested where required
-* [ ] Docking station tested where required
-* [ ] VPN tested where required
-* [ ] Peripherals tested
-* [ ] User data migrated where required
-* [ ] Functional testing completed
-* [ ] System health checked
-* [ ] Asset records updated
-* [ ] Accessories confirmed
-* [ ] User handover completed
+### Control risk
+- **Never disable security controls** to save time
+- **Limit local administrator access**
+- **Review the checklist regularly** to remove outdated steps and add new ones
 
 ---
 
-# Troubleshooting During Setup
+## Lessons Learned
 
-If problems occur during laptop setup, use the appropriate runbook.
+- **Inspect before you configure.** Finding a cracked screen or failing battery after setup wastes time and causes disputes.
+- **Test as the user, not just as IT.** A laptop can work for you and still fail for the user's role, permissions, or apps.
+- **Check for a second round of updates.** One restart often reveals more updates.
+- **Allow time for management policies to sync.** Many "failed" setups are just unfinished syncs.
+- **Don't skip encryption or security checks.** Fixing them after handover is harder and riskier.
+- **Record the device straight away.** Missing asset records cause problems later, especially at offboarding.
+- **Standard beats custom.** The more a laptop matches the standard build, the easier it is to support.
 
-Examples:
+### My notes
+_Add your own lessons here from lab builds or real deployments:_
 
-* [Wi-Fi Connectivity](wi-fi-connectivity.md)
-* [VPN Troubleshooting](vpn-troubleshooting.md)
-* [Slow Computer Troubleshooting](slow-computer-troubleshooting.md)
-* [Blue Screen of Death (BSOD)](blue-screen-of-death-bsod.md)
-* [Account Lockout](account-lockout.md)
-* [Password Reset](password-reset.md)
-
----
-
-# Escalation Criteria
-
-Escalate the setup issue to the appropriate team when:
-
-* Hardware is defective
-* Device enrollment fails
-* Security policies cannot be applied
-* Windows activation fails
-* Required applications cannot be installed
-* Licensing problems cannot be resolved
-* Network access cannot be established
-* VPN configuration requires administrative changes
-* Device encryption cannot be enabled
-* Hardware diagnostics report failures
-* The device does not meet organizational security requirements
-* The issue requires permissions outside the support team's authorization
-
-Document the problem, troubleshooting performed, error messages, and current device status before escalation.
+- 
 
 ---
 
-# Completion Criteria
+## References
 
-A laptop is ready for deployment when:
-
-* Hardware passes inspection
-* Windows is correctly configured
-* Required updates are installed
-* Device management enrollment is successful
-* Security controls are active
-* Required applications are installed
-* Network connectivity is verified
-* VPN works where required
-* User authentication works
-* Required peripherals function correctly
-* Asset records are complete
-* No unresolved critical issues remain
-* User handover requirements are complete
+- Microsoft Learn: Windows Autopilot and Microsoft Intune device enrollment
+- Microsoft Learn: BitLocker overview and deployment
+- Microsoft Learn: Windows security baselines and Secure Boot
+- Microsoft Learn: PowerShell cmdlets for `Get-BitLockerVolume`, `Get-Tpm`, `Get-NetFirewallProfile`, and `Get-MpComputerStatus`
+- Microsoft Support: `powercfg` battery report and Windows activation
+- Your organization's naming convention, security baseline, data handling, and asset management policies
