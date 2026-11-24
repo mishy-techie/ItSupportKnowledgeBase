@@ -1,632 +1,337 @@
-# Blue Screen of Death (BSOD) Troubleshooting Runbook
+# Blue Screen of Death (BSOD)
 
-## Overview
+**Summary:** A Blue Screen of Death (BSOD), also called a stop error, is what Windows shows when it hits a critical problem and has to stop to protect itself. This runbook explains how to capture the evidence, narrow down the cause, restore stability, and know when to escalate.
 
-This runbook provides a standardized procedure for troubleshooting the **Windows Blue Screen of Death (BSOD)**, also known as a **stop error** or **Windows stop code error**.
+**Environment:** Controlled IT support environment (Windows 10/11 computers, managed endpoints, Event Viewer, Windows recovery tools)
 
-A BSOD occurs when Windows encounters a critical system condition that prevents it from continuing safely. The underlying cause may involve faulty hardware, device drivers, Windows system files, software conflicts, storage problems, memory issues, firmware, or other system-level conditions.
+**Related runbooks:** `slow-computer-troubleshooting.md`, `laptop-setup-checklist.md`, `incident-escalation.md`
 
-The objective of this runbook is to identify the stop error, collect useful diagnostic information, determine the likely root cause, restore system stability, and escalate the issue when required.
-
----
-
-## Purpose
-
-This procedure is intended to help IT Support and Service Desk personnel:
-
-* Diagnose Windows BSOD errors
-* Identify Windows stop codes
-* Collect information before restarting or modifying the system
-* Investigate driver-related crashes
-* Check hardware and system integrity
-* Troubleshoot recurring blue-screen errors
-* Determine whether the issue is software or hardware related
-* Verify system stability after remediation
-* Identify when escalation is required
+> **In plain English:** a BSOD is like a car's engine cutting out to prevent damage. The stop code is the warning light. It tells you where to start looking, but it rarely names the exact fault, so the job is to gather clues and work out the cause.
 
 ---
 
-## Scope
+## Symptoms
 
-This runbook applies to Windows computers experiencing:
+A user may report:
 
-* Blue Screen of Death errors
-* Windows stop errors
-* Unexpected system crashes
-* Automatic restarts following critical errors
-* Repeated Windows crashes
-* Driver-related crashes
-* Hardware-related system failures
+- A blue screen showing a stop code (and, on newer Windows, a QR code)
+- The computer restarting unexpectedly
+- Crashes at startup, or only when using a certain app
+- Crashes after a Windows update, driver install, or new hardware
+- Crashes after waking from sleep
+- A computer that cannot start Windows normally
 
-The exact troubleshooting process may vary depending on the Windows version, device manufacturer, hardware configuration, endpoint management platform, and available diagnostic information.
+Common stop codes:
 
----
+| Stop code | Typical area |
+|---|---|
+| `MEMORY_MANAGEMENT` | RAM or memory |
+| `PAGE_FAULT_IN_NONPAGED_AREA` | Driver, RAM, or system files |
+| `IRQL_NOT_LESS_OR_EQUAL` / `DRIVER_IRQL_NOT_LESS_OR_EQUAL` | Drivers or memory |
+| `SYSTEM_SERVICE_EXCEPTION` | Drivers, system files, or software |
+| `KMODE_EXCEPTION_NOT_HANDLED` | Drivers, hardware, or system |
+| `CRITICAL_PROCESS_DIED` | A critical Windows process failed |
+| `INACCESSIBLE_BOOT_DEVICE` | Storage or boot configuration |
 
-# Common BSOD Symptoms
-
-Users may report:
-
-* Blue screen with a stop code
-* Computer unexpectedly restarts
-* Computer crashes during startup
-* Computer crashes while using a specific application
-* Computer crashes after installing a driver
-* Computer crashes after a Windows update
-* Repeated crashes
-* System becomes unstable after waking from sleep
-* Computer displays a stop error and cannot boot normally
-
-Common stop codes may include:
-
-* `CRITICAL_PROCESS_DIED`
-* `SYSTEM_SERVICE_EXCEPTION`
-* `IRQL_NOT_LESS_OR_EQUAL`
-* `PAGE_FAULT_IN_NONPAGED_AREA`
-* `MEMORY_MANAGEMENT`
-* `DRIVER_IRQL_NOT_LESS_OR_EQUAL`
-* `KMODE_EXCEPTION_NOT_HANDLED`
-* `INACCESSIBLE_BOOT_DEVICE`
-
-A stop code alone does not always identify the root cause. It should be considered together with recent system changes, drivers, hardware symptoms, logs, and dump files.
+> **Note:** A stop code alone rarely proves the root cause. Always combine it with recent changes, logs, and dump files.
 
 ---
 
-# Troubleshooting Procedure
+## Prerequisites
 
-## 1. Identify the Incident
+Before starting, make sure you have:
 
-Determine:
-
-* When the BSOD occurred
-* Whether it has happened previously
-* What the user was doing when it occurred
-* Whether the computer restarted automatically
-* Whether a stop code was displayed
-* Whether a driver or file name was displayed
-* Whether the issue occurs during startup or normal operation
-* Whether new hardware or software was recently installed
-* Whether Windows or driver updates were recently installed
-
-Record the exact stop code whenever possible.
+- **Authorization:** Permission to run diagnostics and, where needed, administrator rights on the device
+- **Information from the user:** When it happened, what they were doing, whether it has happened before, and what changed recently
+- **Tools:** Event Viewer, Reliability Monitor, Device Manager, Windows Memory Diagnostic, and an elevated Command Prompt or PowerShell
+- **Approved sources:** Your organization's approved driver and update sources
+- **Data protection plan:** Confirm backup or cloud sync status before any recovery action
+- **BitLocker awareness:** On encrypted devices, recovery steps (such as Safe Mode or startup changes) may ask for a BitLocker recovery key. Retrieve it through your organization's approved process and never record it in the ticket
 
 ---
 
-## 2. Determine Whether the Computer Can Start Normally
+## Troubleshooting / Implementation
 
-After the crash, determine whether Windows can boot normally.
+Work through these steps in order. Stop and escalate if you suspect hardware failure or a security issue.
 
-### If Windows starts normally
+### 1. Capture the incident
+Record:
 
-Continue with diagnostic and system integrity checks.
+- Date and time, and whether it has happened before
+- The exact **stop code** and any driver or file name shown
+- What the user was doing at the time
+- Whether the computer restarted by itself
+- Whether it happens at startup or during normal use
 
-### If Windows repeatedly crashes during startup
+If it appears again, photograph the screen (making sure no sensitive information is visible).
 
-Use Windows recovery and startup troubleshooting procedures.
+### 2. Check whether Windows can start
+- **Starts normally:** continue with the steps below.
+- **Crashes repeatedly at startup:** use Windows recovery options (Safe Mode, Startup Repair, System Restore, Windows Recovery Environment) and protect user data first. Do not reset or reimage yet.
 
-Potential options include:
+### 3. Check for recent changes
+Ask whether the first crash followed any of these:
 
-* Safe Mode
-* Startup Repair
-* System Restore where available and appropriate
-* Windows Recovery Environment
-* Advanced startup options
+- Windows update (quality, feature, or security)
+- Driver or BIOS/firmware update
+- New application or security software
+- New hardware (RAM, SSD, dock, USB device, graphics, or network adapter)
+- A configuration or policy change
 
-Avoid performing destructive recovery procedures before confirming that required data has been protected.
+A close match between a change and the first crash is a strong clue.
 
----
+### 4. Review Event Viewer
+1. Open **Event Viewer** and go to **Windows Logs > System**.
+2. Look at events around the time of the crash.
+3. Useful events include:
+   - **BugCheck (Event ID 1001):** records the stop code after a crash
+   - **Kernel-Power (Event ID 41):** the system restarted without a clean shutdown
+   - **Event ID 6008:** the previous shutdown was unexpected
 
-## 3. Capture the Stop Code
+PowerShell example:
 
-If the blue screen appears again, record:
-
-* Stop code
-* Error message
-* Referenced driver or file
-* Timestamp
-* Actions being performed before the crash
-
-If available, capture a screenshot or photograph of the BSOD for diagnostic purposes while ensuring that no sensitive information is exposed.
-
----
-
-# Recent Changes
-
-## 4. Check for Recent System Changes
-
-Determine whether the issue began after:
-
-* Windows Update
-* Driver installation
-* BIOS or firmware update
-* Application installation
-* Security software update
-* Hardware installation
-* RAM replacement
-* Storage replacement
-* Peripheral installation
-* Configuration change
-
-A strong correlation between a recent change and the first BSOD can help identify the likely cause.
-
----
-
-# Windows Event Logs
-
-## 5. Check Event Viewer
-
-Open **Event Viewer** and review relevant system logs.
-
-Look for events around the time of the crash.
-
-Useful areas include:
-
-```text
-Windows Logs
-└── System
+```powershell
+Get-WinEvent -FilterHashtable @{LogName='System'; Id=1001,41,6008} -MaxEvents 20 |
+  Select-Object TimeCreated, Id, ProviderName, Message
 ```
 
-Pay attention to:
+Not every error is the cause. Match timestamps with the crash.
 
-* Critical events
-* Error events
-* Driver-related errors
-* Hardware-related warnings
-* Unexpected shutdowns
-* Service failures
+### 5. Review Reliability Monitor
+Open it by running:
 
-The event log may contain useful information about what occurred immediately before or after the crash.
+```cmd
+perfmon /rel
+```
 
-Do not assume that every critical or error event is the root cause. Correlate timestamps and symptoms.
+Look for failures near the crash time, and repeated failures from the same application or driver.
 
----
-
-# Reliability Monitor
-
-## 6. Review Reliability Monitor
-
-Windows Reliability Monitor can provide a timeline of:
-
-* Application crashes
-* Windows failures
-* Hardware failures
-* Driver failures
-* Updates
-* Installation events
-
-Look for failures occurring around the time of the BSOD.
-
-Repeated failures involving the same application, driver, or component may provide useful evidence.
-
----
-
-# Memory Dump Analysis
-
-## 7. Check for Crash Dump Files
-
-Windows may create memory dump files following a BSOD.
-
-Common locations include:
+### 6. Check for crash dump files
+Windows may save a dump file after a crash:
 
 ```text
 C:\Windows\Minidump
-```
-
-and:
-
-```text
 C:\Windows\MEMORY.DMP
 ```
 
-The exact dump configuration depends on the Windows system settings.
+- Note the dates of the files and whether any exist.
+- Dump files can be analyzed by the escalation team (for example, with Microsoft's WinDbg).
+- Do not upload dump files to unapproved online services. They can contain sensitive data.
 
-Dump files can contain information useful for identifying:
+### 7. Check drivers
+Drivers are a very common cause.
 
-* Faulting drivers
-* Kernel components
-* Memory-related failures
-* System processes
-* Stop error information
+1. Open **Device Manager** and look for warning icons, missing devices, or recently changed devices.
+2. Focus on graphics, network, storage controller, chipset, audio, docking station, USB, security, and virtualization drivers.
+3. If a driver is suspected:
+   - Identify the device and the current driver version
+   - Check whether crashes began after an update
+   - Install the **approved** driver, or roll back if approved
+   - Restart and monitor stability
 
-Do not upload crash dumps containing sensitive information to unauthorized services.
+Do not install unapproved drivers or third-party driver-update tools.
 
----
+### 8. Repair Windows system files
+Open an **elevated** Command Prompt or PowerShell and run:
 
-# Driver Troubleshooting
-
-## 8. Identify Recently Changed Drivers
-
-Drivers are a common source of Windows system crashes.
-
-Investigate recently installed or updated drivers for:
-
-* Graphics adapters
-* Network adapters
-* Storage controllers
-* Chipsets
-* Audio devices
-* Docking stations
-* USB devices
-* Security software
-* Virtualization software
-
-Check Device Manager for:
-
-* Warning symbols
-* Missing devices
-* Driver errors
-* Recently changed devices
-
----
-
-## 9. Update or Roll Back Drivers
-
-If a driver is strongly suspected:
-
-1. Identify the affected hardware.
-2. Determine the current driver version.
-3. Check whether the issue began after a driver update.
-4. Obtain the approved driver from the appropriate source.
-5. Update the driver where appropriate.
-6. If the problem began immediately after an update, evaluate whether an approved rollback is appropriate.
-7. Restart the computer.
-8. Monitor system stability.
-
-Do not install unapproved drivers or third-party driver-management software.
-
----
-
-# Windows System File Troubleshooting
-
-## 10. Run System File Checker
-
-Corrupted Windows system files can contribute to system instability.
-
-Open an elevated Command Prompt or PowerShell session and run:
-
-```text id="4y4b0r"
+```cmd
 sfc /scannow
 ```
 
-Allow the scan to complete.
+If it finds problems it cannot fix, run:
 
-Review the result and document whether corrupted files were found and repaired.
-
----
-
-## 11. Run DISM
-
-If required, use Deployment Image Servicing and Management:
-
-```text id="y1f1qq"
+```cmd
 DISM /Online /Cleanup-Image /RestoreHealth
 ```
 
-Allow the operation to complete before restarting the computer.
+Then restart and run `sfc /scannow` again. Record whether files were found and repaired.
 
-After DISM completes, run:
+### 9. Check memory
+Faulty RAM can cause `MEMORY_MANAGEMENT`, `PAGE_FAULT_IN_NONPAGED_AREA`, and random crashes.
 
-```text id="1h8tqs"
-sfc /scannow
+1. Run the approved memory test (Windows Memory Diagnostic: search for `mdsched.exe`).
+2. The test needs a restart. Save work first.
+3. Check results in Event Viewer after restart. Memory errors mean the hardware needs escalating.
+
+### 10. Check storage
+Storage problems can cause crashes, corrupted files, and `INACCESSIBLE_BOOT_DEVICE`.
+
+```powershell
+Get-PhysicalDisk | Select-Object FriendlyName, MediaType, HealthStatus, OperationalStatus
 ```
 
-again where appropriate.
+```cmd
+chkdsk C: /scan
+```
 
----
+If the disk shows warnings or errors, **protect the data first** and escalate.
 
-# Hardware Troubleshooting
+### 11. Check recently added hardware
+If new hardware was added, temporarily remove or isolate it if procedures allow, then see whether crashes stop.
 
-## 12. Check Memory
+### 12. Test Safe Mode
+If the computer is stable in Safe Mode but crashes in normal mode, a third-party driver, startup app, or security software is a likely cause. Treat this as evidence, not proof.
 
-Faulty RAM can cause:
+### 13. Check for an application trigger
+If only one app triggers the crash:
 
-* `MEMORY_MANAGEMENT`
-* `PAGE_FAULT_IN_NONPAGED_AREA`
-* Random crashes
-* Application failures
-* System instability
+1. Make sure the app is fully updated and compatible with the Windows version.
+2. Check its logs and related drivers.
+3. Test whether the crash happens outside the app.
+4. Escalate to the application owner if needed.
 
-Run the organization's approved memory diagnostic procedure.
+### 14. Review Windows Update history
+If crashes began after an update, review **Windows Update history** and follow your approved rollback or remediation process. Do not remove security updates without authorization.
 
-Windows Memory Diagnostic may be used where appropriate.
-
-If memory errors are detected, escalate for hardware replacement or repair.
-
----
-
-## 13. Check Storage
-
-Storage problems can cause:
-
-* System crashes
-* Corrupted files
-* Slow performance
-* Boot failures
-* `INACCESSIBLE_BOOT_DEVICE`
-* Unexpected application errors
-
-Check for:
-
-* Disk errors
-* Storage health warnings
-* SMART alerts where available
-* File system errors
-* Unusual disk behavior
-
-If storage failure is suspected, prioritize data protection and escalate appropriately.
-
----
-
-## 14. Check Hardware Changes
-
-Ask whether the device recently received:
-
-* Additional RAM
-* New SSD or HDD
-* Docking station
-* External device
-* Graphics hardware
-* Network adapter
-* USB device
-
-Temporarily removing newly installed hardware may help determine whether the change is related, provided this is permitted by organizational procedures.
-
----
-
-# Safe Mode Troubleshooting
-
-## 15. Test Safe Mode
-
-If Windows crashes during normal operation, Safe Mode can help determine whether a third-party driver or startup application is involved.
-
-If the computer operates normally in Safe Mode but crashes during normal Windows operation, investigate:
-
-* Third-party drivers
-* Startup applications
-* Security software
-* Recently installed applications
-* Device services
-
-Do not assume that Safe Mode automatically identifies the cause. Use the result as diagnostic evidence.
-
----
-
-# Application-Specific BSODs
-
-## 16. Determine Whether a Specific Application Triggers the Crash
-
-If the BSOD consistently occurs while using a particular application:
-
-1. Determine whether the application is fully updated.
-2. Check application compatibility.
-3. Review application logs where available.
-4. Check related drivers.
-5. Check system resource usage.
-6. Test whether the issue occurs outside the application.
-7. Review recent application changes.
-
-If only one application consistently triggers the crash, escalate to the appropriate application or systems team when required.
-
----
-
-# Windows Update and BSOD Troubleshooting
-
-## 17. Check Recent Windows Updates
-
-Determine whether the BSOD began after:
-
-* Windows quality update
-* Feature update
-* Security update
-* Driver update
-
-Review Windows Update history.
-
-If there is strong evidence that a recent update is related, follow the organization's approved update rollback or remediation procedure.
-
-Do not remove security updates without authorization.
-
----
-
-# Security Considerations
-
-## 18. Investigate Suspicious System Behavior
-
-Unexpected crashes can occasionally be associated with:
-
-* Malware
-* Rootkits
-* Unauthorized drivers
-* Endpoint security conflicts
-* Suspicious software
-* System compromise
-
-If suspicious activity is identified:
+### 15. Consider security
+Crashes can occasionally be linked to malware, unauthorized drivers, or endpoint-security conflicts. If anything looks suspicious:
 
 1. Stop routine troubleshooting.
-2. Preserve relevant diagnostic information.
-3. Follow the organization's security incident response procedure.
-4. Escalate to the security team.
+2. Preserve diagnostic information.
+3. Follow your security incident procedure and escalate.
 
-Do not disable endpoint protection simply to test whether it is related to the crash.
+Do not disable endpoint protection just to test it.
 
----
+### 16. Look for patterns in repeat crashes
+For recurring BSODs, record the stop code, frequency, times, user activity, recent changes, driver versions, hardware, dump details, and Event Viewer findings. If several computers crash after the same update, driver, or policy change, treat it as a possible **wider incident** and escalate.
 
-# Recurring BSOD Troubleshooting
+### When to escalate
+Use `incident-escalation.md` when:
 
-## 19. Identify Patterns
+- Crashes keep happening after basic checks
+- Hardware failure is suspected, or memory or storage errors are detected
+- Windows cannot start normally, or recovery is required
+- A driver cannot be safely updated or rolled back
+- Several computers have the same BSOD
+- System files stay corrupted after approved repairs
+- A security compromise is suspected
+- Data recovery may be needed
+- The fix needs access outside your authority
 
-For recurring crashes, document:
-
-* Stop code
-* Frequency
-* Date and time
-* User activity
-* Application being used
-* Recent changes
-* Driver versions
-* Hardware configuration
-* Dump file information
-* Event Viewer findings
-
-Look for patterns between multiple incidents.
-
-If multiple computers experience the same BSOD after a common software, driver, or policy change, investigate the possibility of a wider incident.
+**Include in the escalation:** device and OS version, stop code and referenced driver or file, dates and frequency, recent changes, Event Viewer and Reliability Monitor findings, dump file details, diagnostic results, what you already tried, and the user impact.
 
 ---
 
-# Recovery Considerations
+## Resolution
 
-## 20. Protect User Data
+Choose the fix that matches the evidence you found.
 
-Before performing major recovery actions:
+| Finding | Typical resolution |
+|---|---|
+| Crash began after a driver update | Roll back or install the approved driver |
+| Crash began after a Windows update | Follow the approved rollback or remediation process |
+| Corrupted system files | `sfc /scannow` and DISM, then recheck |
+| Memory errors | Escalate for RAM replacement or repair |
+| Disk errors or health warnings | Back up data, then escalate for repair or replacement |
+| New hardware suspected | Remove or replace the hardware (if permitted) |
+| One app triggers it | Update the app, or escalate to the application owner |
+| Suspected malware or compromise | Stop troubleshooting and escalate to security |
+| No cause found, but system is stable | Monitor and document |
 
-* Confirm important data is backed up
-* Verify cloud synchronization where applicable
-* Protect business-critical files
-* Follow organizational data recovery procedures
+### Before any major recovery
+- Confirm important data is backed up or synced
+- Do not reimage or reset yet if the evidence is still needed to find the root cause
+- Use System Restore, Startup Repair, or approved recovery steps only when authorized
 
-Do not immediately reimage or reset a computer when diagnostic evidence may still be required to determine the root cause.
+### Document the ticket
+Record:
 
----
+- Date and time reported, user, and device or asset ID (per your organization's policy)
+- Operating system version and stop code
+- Referenced driver or error message
+- User activity before the crash
+- Recent changes and diagnostic findings
+- Actions taken, recovery steps, and the resolution
+- Verification results and any escalation
 
-## 21. System Restore or Recovery
-
-Where appropriate and authorized, consider:
-
-* System Restore
-* Startup Repair
-* Windows Recovery Environment
-* Driver rollback
-* Approved system recovery procedures
-
-Recovery actions should be selected based on the identified problem and organizational procedures.
-
----
-
-# Common BSOD Scenarios
-
-| Symptom / Stop Code              | Possible Cause                         | Recommended Investigation                                 |
-| -------------------------------- | -------------------------------------- | --------------------------------------------------------- |
-| `MEMORY_MANAGEMENT`              | RAM or memory-related problem          | Run memory diagnostics and review dump information        |
-| `PAGE_FAULT_IN_NONPAGED_AREA`    | Driver, RAM, or system file issue      | Check recent drivers, memory, and system integrity        |
-| `IRQL_NOT_LESS_OR_EQUAL`         | Commonly driver or memory-related      | Review recent drivers and dump information                |
-| `SYSTEM_SERVICE_EXCEPTION`       | Driver, system file, or software issue | Check recent changes, drivers, and system integrity       |
-| `CRITICAL_PROCESS_DIED`          | Critical Windows process failure       | Review system files, drivers, and crash information       |
-| `DRIVER_IRQL_NOT_LESS_OR_EQUAL`  | Driver problem                         | Identify the referenced driver and investigate            |
-| `KMODE_EXCEPTION_NOT_HANDLED`    | Driver, hardware, or system issue      | Review referenced driver and recent changes               |
-| `INACCESSIBLE_BOOT_DEVICE`       | Storage or boot configuration issue    | Check storage, drivers, and recent system changes         |
-| BSOD after driver update         | Driver incompatibility                 | Investigate driver version and consider approved rollback |
-| BSOD after hardware installation | Hardware or driver compatibility       | Remove or isolate recent hardware where appropriate       |
+> **Never** record passwords, BitLocker recovery keys, tokens, or other secrets in the ticket.
 
 ---
 
-# Verification Checklist
+## Verification
 
-* [ ] User symptoms documented
-* [ ] Exact stop code recorded
-* [ ] Time and frequency of crashes documented
-* [ ] Recent software changes checked
-* [ ] Recent driver changes checked
-* [ ] Recent hardware changes checked
-* [ ] Event Viewer reviewed
-* [ ] Reliability Monitor reviewed
-* [ ] Crash dump availability checked
-* [ ] Windows system files checked
-* [ ] Hardware health considered
-* [ ] Memory diagnostics performed where appropriate
-* [ ] Storage health considered
-* [ ] Safe Mode tested where appropriate
-* [ ] Windows Update history reviewed
-* [ ] Security considerations evaluated
-* [ ] User data protected before recovery actions
-* [ ] Resolution applied
-* [ ] System stability verified
-* [ ] User confirms successful operation
-* [ ] Ticket updated
-* [ ] Escalation completed if required
+- [ ] Symptoms and exact stop code recorded
+- [ ] Time and frequency of crashes documented
+- [ ] Recent software, driver, and hardware changes checked
+- [ ] Event Viewer and Reliability Monitor reviewed
+- [ ] Crash dump availability checked
+- [ ] System files checked (SFC and DISM)
+- [ ] Memory and storage health checked where appropriate
+- [ ] Safe Mode tested where appropriate
+- [ ] Windows Update history reviewed
+- [ ] Security considerations evaluated
+- [ ] User data protected before recovery actions
+- [ ] Fix applied
+- [ ] Computer stable during normal use and after restart
+- [ ] No new stop errors in Event Viewer after the fix
+- [ ] User confirms normal operation
+- [ ] Ticket updated, and escalation completed if required
 
----
+Quick re-check for new crashes:
 
-# Escalation Criteria
+```powershell
+Get-WinEvent -FilterHashtable @{LogName='System'; Id=1001,41} -MaxEvents 5 |
+  Select-Object TimeCreated, Id, Message
+```
 
-Escalate the issue to the appropriate desktop support, systems, hardware, infrastructure, or security team when:
-
-* BSODs occur repeatedly
-* Hardware failure is suspected
-* Memory or storage errors are detected
-* Windows cannot boot normally
-* System recovery is required
-* A driver cannot be safely updated or rolled back
-* Multiple computers experience the same BSOD
-* A widespread software or driver issue is suspected
-* System files remain corrupted after approved repair procedures
-* A security compromise is suspected
-* Data recovery may be required
-* The issue requires administrative changes outside the support team's authorization
-
-Provide the escalation team with:
-
-* Device information
-* Operating system version
-* Stop code
-* Referenced driver or file
-* Date and time of crashes
-* Crash frequency
-* Recent changes
-* Event Viewer findings
-* Reliability Monitor findings
-* Dump file information where available
-* Hardware diagnostic results
-* Troubleshooting performed
-* Actions already taken
-* User impact
+> **In plain English:** the computer runs normally for a sensible period, there are no new crash events, and the user is happy it works.
 
 ---
 
-# Documentation Requirements
+## Common BSOD Scenarios
 
-Record the following information in the support ticket:
-
-* Date and time reported
-* Affected user
-* Device or asset identifier according to organizational policy
-* Operating system
-* BSOD stop code
-* Error message or referenced driver
-* User activity immediately before the crash
-* Recent hardware or software changes
-* Diagnostic findings
-* Troubleshooting performed
-* Recovery actions
-* Resolution
-* Verification results
-* Escalation details where applicable
-
-Do not record passwords, recovery keys, authentication tokens, or other sensitive information.
+| Symptom | Possible cause | What to check |
+|---|---|---|
+| `MEMORY_MANAGEMENT` | RAM problem | Memory diagnostic and dump information |
+| `PAGE_FAULT_IN_NONPAGED_AREA` | Driver, RAM, or system files | Recent drivers, memory, SFC |
+| `IRQL_NOT_LESS_OR_EQUAL` | Driver or memory | Recent drivers and dump information |
+| `SYSTEM_SERVICE_EXCEPTION` | Driver, system file, or software | Recent changes, drivers, SFC |
+| `CRITICAL_PROCESS_DIED` | Critical Windows process failure | System files, drivers, crash information |
+| `DRIVER_IRQL_NOT_LESS_OR_EQUAL` | Driver problem | Identify the referenced driver |
+| `KMODE_EXCEPTION_NOT_HANDLED` | Driver, hardware, or system | Referenced driver and recent changes |
+| `INACCESSIBLE_BOOT_DEVICE` | Storage or boot configuration | Disk health, storage drivers, recent changes |
+| Crash after a driver update | Driver incompatibility | Driver version and approved rollback |
+| Crash after new hardware | Hardware or driver compatibility | Remove or isolate the new hardware |
 
 ---
 
-# Prevention
+## Prevention
 
-Organizations can reduce recurring BSOD incidents by:
+Organizations can reduce BSODs by:
 
-* Maintaining supported hardware configurations
-* Keeping Windows updated
-* Maintaining approved driver versions
-* Testing drivers before broad deployment
-* Monitoring endpoint health
-* Maintaining reliable backup procedures
-* Monitoring hardware health
-* Replacing failing hardware promptly
-* Controlling unauthorized software and drivers
-* Maintaining endpoint security
-* Documenting recurring stop codes and root causes
-* Using controlled change management for system updates
+- **Keeping Windows updated** and using controlled change management for updates
+- **Using approved driver versions** and testing drivers on a small group before wide rollout
+- **Maintaining supported hardware configurations** and replacing failing hardware promptly
+- **Monitoring endpoint and hardware health** (disk health, memory errors, crash reports)
+- **Controlling unauthorized software and drivers**
+- **Keeping endpoint security up to date**
+- **Maintaining reliable backups** so a crash never means lost data
+- **Documenting recurring stop codes and root causes** so patterns are spotted quickly
 
 ---
 
-# Related Runbooks
+## Lessons Learned
 
-* [Slow Computer Troubleshooting](slow-computer-troubleshooting.md)
-* [Laptop Setup Checklist](laptop-setup-checklist.md)
-* [Incident Escalation](incident-escalation.md)
+- **Capture evidence before restarting or changing things.** The stop code, timestamp, and dump files disappear or get overwritten.
+- **Ask what changed.** A recent driver, update, or hardware change explains a large share of BSODs.
+- **Drivers are the usual suspect.** Check them before assuming hardware has failed.
+- **One crash is not a pattern, but repeated crashes are.** Track stop codes and dates.
+- **Protect data first.** Do not reset or reimage until the user's data is safe and the evidence is no longer needed.
+- **Several affected computers means a bigger problem.** It points to a shared update, driver, or policy.
+- **Don't disable security tools to test.** Escalate instead.
+
+### My notes
+_Add your own lessons here from lab exercises or real tickets:_
+
+- 
+
+---
+
+## References
+
+- Microsoft Learn: Troubleshoot blue screen errors and bug check code reference
+- Microsoft Learn: Read small memory dump files and analyze crashes with WinDbg
+- Microsoft Learn: System File Checker (SFC) and DISM (Repair a Windows image)
+- Microsoft Support: Windows Memory Diagnostic and Reliability Monitor
+- Microsoft Learn: Event Viewer, including BugCheck (1001) and Kernel-Power (41) events
+- Your organization's approved driver, update, backup, and incident response policies
