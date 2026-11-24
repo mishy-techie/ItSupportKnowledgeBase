@@ -1,462 +1,281 @@
-# Account Lockout Troubleshooting Runbook
+# Account Lockout
 
-## Overview
+**Summary:** An account lockout happens when a user account is temporarily blocked after too many failed sign-in attempts. This runbook explains how to find out why it happened, safely restore access, and stop it from happening again.
 
-This runbook provides a standardized procedure for troubleshooting and resolving **user account lockouts** in an IT support environment.
+**Environment:** Controlled IT support environment (Active Directory Domain Services, Windows domain-joined computers, Microsoft 365 / Microsoft Entra ID where applicable)
 
-An account lockout occurs when a user account is temporarily prevented from authenticating after a defined number of unsuccessful sign-in attempts. Account lockouts are commonly associated with **Active Directory Domain Services (AD DS)** environments, but similar issues can occur with cloud identity platforms and applications that enforce authentication policies.
+**Related runbooks:** `password-reset.md`, `incident-escalation.md`, `vpn-troubleshooting.md`
 
-The objective of this runbook is to identify the cause of the lockout, restore the user's access safely, and determine whether additional action is required.
-
----
-
-## Purpose
-
-This procedure is intended to help IT Support and Service Desk personnel:
-
-* Identify why a user account has been locked out
-* Verify the affected user account
-* Determine whether the lockout is legitimate or suspicious
-* Unlock an Active Directory user account when appropriate
-* Identify devices or applications repeatedly submitting incorrect credentials
-* Verify that the user can successfully authenticate
-* Escalate suspected security incidents appropriately
-* Document the incident and resolution
-
----
-
-## Scope
-
-This runbook applies to common account lockout scenarios involving:
-
-* Windows domain user accounts
-* Active Directory user accounts
-* Domain-joined computers
-* Microsoft 365 and cloud-connected identities where applicable
-* Cached credentials
-* Mobile devices
-* Email clients
-* VPN clients
-* Mapped network drives
-* Scheduled tasks
-* Services configured with user credentials
-* Applications using stored credentials
-
-The exact administrative procedures may vary depending on the organization's identity infrastructure and security policies.
+> **In plain English:** think of a lockout like a bank card that gets blocked after too many wrong PIN attempts. Unblocking the card is easy. The real work is finding out *what* keeps entering the wrong PIN.
 
 ---
 
 ## Symptoms
 
-A user may report one or more of the following:
+A user may report:
 
-* Unable to sign in to Windows
-* "Account is locked out" message
-* Repeated authentication failures
-* Unable to access network resources
-* Unable to connect to VPN
-* Outlook repeatedly requesting credentials
-* Microsoft 365 applications repeatedly requesting authentication
-* Access denied after previously working credentials
-* User can authenticate on one device but not another
-* Account becomes locked again shortly after being unlocked
+- "Your account has been locked out" message when signing in
+- Repeated sign-in failures, even with the correct password
+- Outlook or Microsoft 365 apps repeatedly asking for a password
+- Unable to connect to VPN or network drives
+- Works on one device but not another
+- Account locks again shortly after being unlocked
 
 ---
 
-## Common Causes
+## Prerequisites
 
-Account lockouts can occur for several reasons.
+Before starting, make sure you have:
 
-### Incorrect Password Attempts
+- **Authorization:** Permission to unlock accounts and view account status
+- **Tools (Active Directory environments):**
+  - Active Directory Users and Computers (ADUC) or PowerShell with the Active Directory module
+  - Access to Security event logs on domain controllers (read-only is enough to investigate)
+- **Information from the user:** Username, affected device or service, when the problem started, and whether they recently changed their password
+- **Identity verification:** Follow your organization's procedure to confirm who is asking before making any change
 
-The most straightforward cause is repeated authentication using an incorrect password.
-
-Possible sources include:
-
-* User entering an old password
-* Incorrect password being repeatedly entered
-* Password changed recently
-* Password manager containing an outdated password
-
-### Stored Credentials
-
-Old credentials may remain stored on:
-
-* Windows Credential Manager
-* Email applications
-* VPN clients
-* Network drives
-* Mobile devices
-* Applications
-* Remote desktop sessions
-
-### Mapped Network Drives
-
-A mapped network drive configured with outdated credentials can repeatedly attempt authentication and trigger an account lockout.
-
-### Mobile Devices
-
-A phone or tablet configured with an old password may continue attempting to connect to email or other services.
-
-### Scheduled Tasks
-
-A Windows scheduled task may be configured to run under a user's account with an outdated password.
-
-### Windows Services
-
-A service configured to use a domain user account may continue attempting authentication after the user's password has changed.
-
-### Applications
-
-Applications that store credentials may continue submitting an old password.
-
-### Multiple Devices
-
-The user may be signed in on multiple computers, phones, tablets, or remote sessions, with one device still using outdated credentials.
-
-### Security-Related Activity
-
-Unexpected or repeated authentication failures can potentially indicate:
-
-* Credential theft
-* Brute-force attempts
-* Password spraying
-* Compromised devices
-* Unauthorized access attempts
-
-Suspicious activity should be handled according to the organization's security incident response procedures.
+> **Note:** Never ask the user for their password, and never record passwords, MFA codes, or tokens in the ticket.
 
 ---
 
-# Troubleshooting Procedure
+## Troubleshooting / Implementation
 
-## 1. Verify the User
+Follow these steps in order. Do not skip to unlocking: if something keeps causing the lockout, the account will simply lock again.
 
-Before making account changes, verify the identity of the person requesting assistance according to organizational identity verification procedures.
+### 1. Verify the user
+1. Confirm the requester's identity using your organization's approved method.
+2. Note the username, affected system, symptoms, and when it began.
+3. Do not share account details or make security-sensitive changes until verified.
 
-Confirm:
+### 2. Confirm the account is actually locked
+A locked account is different from a disabled account, an expired account, or an expired password. Each needs a different fix.
 
-* User identity
-* Username
-* Affected system or service
-* Reported symptoms
-* Approximate time the issue began
+**Using ADUC:** open the user's properties and check the **Account** tab.
 
-Do not disclose account information or make security-sensitive changes until the requester has been appropriately verified.
+**Using PowerShell** (example uses a fictional user, `jdoe`):
 
----
+```powershell
+Get-ADUser -Identity jdoe -Properties LockedOut, Enabled, PasswordExpired, BadLogonCount, LastBadPasswordAttempt, AccountExpirationDate |
+  Select-Object Name, LockedOut, Enabled, PasswordExpired, BadLogonCount, LastBadPasswordAttempt, AccountExpirationDate
+```
 
-## 2. Confirm the Account Is Locked
+| Result | Meaning | Next step |
+|---|---|---|
+| `LockedOut = True` | Genuine lockout | Continue this runbook |
+| `Enabled = False` | Account disabled | Escalate or check with HR/manager. Do not simply re-enable |
+| `PasswordExpired = True` | Password needs changing | Use `password-reset.md` |
+| Account expiry date passed | Account expired | Escalate to the identity team |
+| `LockedOut = False` | Account is not locked | Check username, domain, caps lock, or a different issue |
 
-Check the user's account status using the organization's approved identity management tools.
+### 3. Check for a recent password change
+A recent password change is the most common cause of repeated lockouts. Ask the user:
 
-In an Active Directory environment, authorized administrators can check the user account properties in **Active Directory Users and Computers (ADUC)**.
+- Did you change your password recently?
+- Do you have a phone, tablet, or second computer that connects to work email?
+- Do you use saved passwords, VPN, or mapped network drives?
 
-Confirm whether:
+### 4. Find the source of the failed attempts
+If the account keeps locking, **do not keep unlocking it.** Find what is sending the wrong password.
 
-* The account is locked
-* The account is disabled
-* The account has expired
-* The password has expired
-* The user is entering the correct username
-* The user is authenticating against the expected domain
+1. Find the domain controller that handles lockouts (the PDC Emulator):
 
-An account that is disabled or expired requires a different resolution from a temporary account lockout.
+   ```powershell
+   (Get-ADDomain).PDCEmulator
+   ```
 
----
+2. On that domain controller, look for **Event ID 4740** (account locked out). The **Caller Computer Name** field shows which device triggered the lockout:
 
-## 3. Determine When the Lockout Occurred
+   ```powershell
+   Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4740} -MaxEvents 20 |
+     Where-Object { $_.Message -match 'jdoe' } |
+     Select-Object TimeCreated, Message
+   ```
 
-Establish approximately when the account became locked.
+3. On the computer named in that event, look for **Event ID 4625** (failed logon) to see which process or logon type is responsible.
 
-Useful information includes:
+> **Note:** Available detail depends on your auditing settings. If events are missing, the audit policy may need updating by the identity team.
 
-* Time of the user's last successful login
-* Time the lockout was first reported
-* Device being used when the problem occurred
-* Applications being used
-* Recent password changes
-* Recent device changes
-* Recent VPN or remote-access activity
+### 5. Check the user's devices and sessions
+Look for any device still using the old password:
 
-This information can help narrow down the source of the authentication attempts.
+- Primary workstation and laptop
+- Phone and tablet (email apps are a very common cause)
+- Remote Desktop sessions or virtual desktops
+- Other computers where the user is still signed in
 
----
+### 6. Check saved credentials on the affected computer
+1. Open **Credential Manager** (search for it in the Start menu).
+2. Review **Windows Credentials** and **Generic Credentials** for old entries.
+3. Remove or update outdated entries.
 
-## 4. Check for Recent Password Changes
+Command-line options:
 
-Ask whether the user recently changed their password.
+```cmd
+cmdkey /list
+net use
+```
 
-If the password was recently changed, investigate systems that may still contain the previous password.
+`cmdkey /list` shows saved credentials and `net use` shows current network connections.
 
-Common locations include:
+### 7. Check mapped drives and network connections
+1. Disconnect the affected network drive.
+2. Remove any outdated saved credentials for it.
+3. Reconnect using the current credentials and confirm access.
 
-* Mobile devices
-* Outlook
-* VPN clients
-* Windows Credential Manager
-* Mapped network drives
-* Remote Desktop sessions
-* Scheduled Tasks
-* Windows services
-* Third-party applications
+### 8. Check scheduled tasks and services
+If the account still locks after steps 5 to 7, look for automated items running under the user's account:
 
-A recently changed password is one of the most common causes of repeated account lockouts.
+- **Task Scheduler:** scripts, backups, and automation tasks
+- **Services** (`services.msc`): legacy applications and monitoring tools
+- **Other servers:** shared systems where the user's account was used to run something
 
----
+If a task or service uses a person's account, update its credentials or recommend moving it to a dedicated service account.
 
-## 5. Identify the Source of the Lockout
+### 9. Check for suspicious activity
+Escalate immediately (see **When to escalate**) if you see:
 
-If the account repeatedly becomes locked after being unlocked, do not simply continue unlocking the account.
+- Failed attempts from an unknown device or location
+- Many accounts failing at the same time
+- A pattern of many failures across many accounts (possible password spraying)
+- The user reports sign-in alerts they did not cause
 
-Investigate the source of the failed authentication attempts.
+> **Do not unlock the account** if a security investigation is open or you suspect a compromise. Escalate first.
 
-In an Active Directory environment, security event logs can provide useful information.
+### When to escalate
+Use `incident-escalation.md` when:
 
-Relevant Windows Security events may include:
-
-* **Event ID 4740** — A user account was locked out
-* **Event ID 4625** — An account failed to log on
-
-Event information may help identify:
-
-* The affected account
-* The time of the authentication failure
-* The originating computer
-* The authentication context
-* Other information useful for investigation
-
-The exact information available depends on the domain configuration, auditing settings, and authentication method.
-
----
-
-## 6. Check the User's Devices
-
-Determine whether the user has multiple devices or sessions.
-
-Check for:
-
-* Primary workstation
-* Laptop
-* Mobile phone
-* Tablet
-* Remote workstation
-* Virtual desktop
-* Remote Desktop sessions
-
-A device that has not received the updated password may continue attempting authentication.
+- The account repeatedly locks with no identifiable cause
+- Several users have unexplained lockouts
+- Failures come from an unknown device
+- You suspect password spraying, brute force, or a compromised account
+- The account has elevated (admin) privileges
+- A business-critical service is affected
+- Fixing it needs access outside the support team's authority
 
 ---
 
-## 7. Check Stored Credentials
+## Resolution
 
-On Windows devices, review **Credential Manager** for outdated credentials where appropriate.
+### Unlock the account
+Once the cause is found or reasonable checks are complete, an authorized technician can unlock the account.
 
-Potential sources include:
+**Using ADUC:** open the user's properties, go to the **Account** tab, tick **Unlock account**, then click **OK**.
 
-* Windows credentials
-* Network resource credentials
-* Remote access credentials
-* Application credentials
+**Using PowerShell:**
 
-Remove or update obsolete credentials according to organizational procedures.
+```powershell
+Unlock-ADAccount -Identity jdoe
+```
 
----
+Before unlocking, confirm that:
 
-## 8. Check Mapped Drives and Network Resources
+- The user's identity is verified
+- The account should remain active
+- The activity does not look suspicious
+- No security investigation is in progress
 
-Review mapped network drives and other persistent network connections.
+### Fix the underlying cause
+Unlocking only clears the symptom. Also:
 
-Look for connections that may still be attempting authentication with an outdated password.
+- Update or remove the old password on the device, app, drive, or task that caused it
+- If the password is forgotten or possibly exposed, reset it using `password-reset.md`
+- For cloud-only accounts (Microsoft Entra ID), follow your organization's process for smart lockout and self-service password reset
 
-Where necessary:
+### Document the ticket
+Record:
 
-1. Disconnect the affected network resource.
-2. Remove outdated stored credentials.
-3. Reconnect using the current credentials.
-4. Verify access.
+- Date and time, and the username (per your organization's policy)
+- Symptoms and when the lockout occurred
+- Whether a password change was recent
+- What you checked, and the source of the lockout if found
+- What you did to resolve it
+- Verification results and any escalation
 
----
-
-## 9. Check Scheduled Tasks and Services
-
-If the account continues to lock after the user's devices and stored credentials have been checked, investigate scheduled tasks and services.
-
-Look for tasks or services configured to run under the affected user account.
-
-Particular attention should be given to:
-
-* Scheduled scripts
-* Backup jobs
-* Automation tasks
-* Legacy applications
-* Windows services
-* Monitoring systems
-
-If a service or task uses a user account, credentials may need to be updated or the service account design reviewed.
+> **Never** record passwords, MFA codes, or tokens in the ticket.
 
 ---
 
-## 10. Unlock the Account
+## Verification
 
-Once the cause has been identified or reasonable checks have been completed, an authorized administrator may unlock the account according to organizational procedures.
+Confirm the issue is truly fixed, not just temporarily cleared.
 
-In an Active Directory environment, this can typically be performed through the user's account properties in Active Directory Users and Computers.
+- [ ] User identity verified
+- [ ] Correct account identified
+- [ ] Lockout confirmed (not a disabled or expired account)
+- [ ] Recent password change checked
+- [ ] Source of failed sign-ins investigated
+- [ ] Stored credentials reviewed
+- [ ] User devices reviewed
+- [ ] Mapped drives checked
+- [ ] Scheduled tasks and services considered
+- [ ] Account unlocked by an authorized technician
+- [ ] User signed in successfully
+- [ ] Key apps tested (Windows sign-in, Outlook, Microsoft 365, VPN, network shares)
+- [ ] Account still unlocked after some time (check again later the same day)
+- [ ] Ticket updated with all troubleshooting performed
+- [ ] Security escalation completed if required
 
-Before unlocking the account:
+To re-check the status quickly:
 
-* Confirm the user's identity
-* Confirm the account should remain active
-* Consider whether the activity appears suspicious
-* Verify that there is no active security investigation
+```powershell
+Get-ADUser -Identity jdoe -Properties LockedOut | Select-Object Name, LockedOut
+```
 
-Do not repeatedly unlock an account when an unknown system continues generating authentication failures.
-
----
-
-## 11. Verify Authentication
-
-After unlocking the account, ask the user to authenticate again.
-
-Verify the required services, such as:
-
-* Windows sign-in
-* Microsoft 365 applications
-* Outlook
-* VPN
-* Network shares
-* Other business applications
-
-Confirm that the account remains unlocked after authentication.
+> **In plain English:** the user can sign in everywhere they need to, and the account stays unlocked.
 
 ---
 
-## 12. Monitor for Recurrence
+## Common Lockout Scenarios
 
-If the account becomes locked again shortly after being unlocked, continue investigating rather than repeatedly unlocking the account.
-
-Possible causes include:
-
-* Another device using an old password
-* Cached credentials
-* Scheduled task
-* Windows service
-* Mobile device
-* VPN client
-* Application
-* Remote session
-* Suspicious authentication activity
-
-Repeated lockouts without an identified cause should be escalated when appropriate.
+| Scenario | Likely cause | What to check |
+|---|---|---|
+| Locks right after a password change | Old password saved somewhere | Phone, Outlook, VPN, Credential Manager, mapped drives |
+| Locks overnight or at the same time daily | Scheduled task or service | Task Scheduler and Services |
+| Locks when VPN is used | Saved VPN credentials | VPN client settings |
+| Locks repeatedly from one workstation | Local app or cached credentials | That workstation |
+| Locks from many devices | Shared or outdated credentials | All user devices and services |
+| Locks again right after unlocking | A device is still sending the old password | Event ID 4740 caller computer name |
+| Still locked after a password reset | Another system still uses the old password | Source of failed attempts |
+| Unknown source of repeated failures | Possible security issue | Investigate and escalate |
 
 ---
 
-# Verification Checklist
+## Prevention
 
-Use the following checklist to confirm that the issue has been resolved:
+Organizations can reduce lockouts by:
 
-* [ ] User identity verified
-* [ ] Correct account identified
-* [ ] Account lockout confirmed
-* [ ] Recent password change checked
-* [ ] Potential source of failed authentication investigated
-* [ ] Stored credentials reviewed
-* [ ] User devices reviewed
-* [ ] Mapped drives checked
-* [ ] Scheduled tasks/services considered
-* [ ] Account unlocked by an authorized administrator
-* [ ] User successfully authenticated
-* [ ] Required applications tested
-* [ ] Account remains unlocked
-* [ ] Ticket updated with troubleshooting performed
-* [ ] Security escalation completed if required
+- **Educating users** about updating their password on all devices after a change
+- **Encouraging approved password managers** to avoid typing errors and outdated entries
+- **Removing obsolete saved credentials** during device clean-ups
+- **Using dedicated service accounts** for scheduled tasks and services, never personal accounts
+- **Reviewing scheduled tasks and services** regularly
+- **Using MFA** and self-service password reset where appropriate
+- **Monitoring authentication failures** to spot patterns early
+- **Maintaining accurate account and asset records** so you know where an account is used
+- **Setting sensible lockout policies** (threshold, duration, and reset window) that balance security and usability
 
 ---
 
-# Escalation Criteria
+## Lessons Learned
 
-Escalate the incident to the appropriate administrator, identity team, or security team when:
+- **Don't just keep unlocking.** If an account keeps locking, something is still sending the wrong password. Find it.
+- **Phones are the most common hidden cause.** An old password on a mobile email app can lock an account repeatedly.
+- **Check the type of problem first.** A disabled, expired, or password-expired account looks similar to a lockout but needs a different fix.
+- **Event ID 4740 saves time.** The caller computer name usually points straight to the source.
+- **Personal accounts shouldn't run services or tasks.** Every password change then breaks something.
+- **Repeated lockouts can be a security signal.** Treat unexplained patterns as possible attacks until proven otherwise.
 
-* The account repeatedly locks without an identifiable cause
-* Multiple users experience unexplained account lockouts
-* Authentication failures originate from an unknown device
-* There are indications of password spraying or brute-force activity
-* The user reports suspicious sign-in activity
-* The account may have been compromised
-* The affected account has elevated privileges
-* The issue affects a critical business service
-* The issue requires access to systems outside the support team's authorization
+### My notes
+_Add your own lessons here from lab exercises or real tickets:_
 
-Security-related escalation should follow the organization's incident response procedures.
-
----
-
-# Documentation Requirements
-
-The support ticket should record relevant information such as:
-
-* Date and time of the incident
-* Affected username or account identifier according to organizational policy
-* Reported symptoms
-* Approximate time the lockout occurred
-* Recent password changes
-* Troubleshooting performed
-* Source of the lockout, if identified
-* Resolution performed
-* Verification results
-* Escalation details, if applicable
-
-Never record passwords, MFA codes, authentication tokens, or other secrets in the ticket.
-
----
-
-# Common Account Lockout Scenarios
-
-| Scenario                                     | Likely Cause                                                 | Recommended Investigation                                |
-| -------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------- |
-| Lockout immediately after password change    | Old credentials stored somewhere                             | Check devices, applications, VPN, and Credential Manager |
-| Lockout occurs overnight                     | Scheduled task or service                                    | Review scheduled tasks and services                      |
-| Lockout occurs when VPN is used              | Stored VPN credentials                                       | Review VPN configuration and saved credentials           |
-| Lockout occurs repeatedly on one workstation | Local application or cached credentials                      | Investigate the workstation                              |
-| Lockout occurs across multiple devices       | Shared or outdated credentials                               | Review all user devices and services                     |
-| Unknown source causes repeated lockouts      | Potential security issue                                     | Investigate and escalate                                 |
-| Account remains locked after password reset  | Another system continues authenticating with old credentials | Identify the source of authentication attempts           |
-
----
-
-# Prevention
-
-Organizations can reduce recurring account lockouts by:
-
-* Educating users about password changes
-* Encouraging password managers where approved
-* Removing obsolete stored credentials
-* Avoiding the use of personal accounts for services
-* Using dedicated service accounts where appropriate
-* Reviewing scheduled tasks and services
-* Implementing appropriate MFA
-* Monitoring authentication failures
-* Maintaining accurate asset and account records
-* Applying appropriate account lockout and authentication policies
-
----
-
-# Related Topics
-
-* Active Directory User Management
-* Windows Authentication
-* Password Reset
-* Microsoft Entra ID
-* Group Policy
-* Windows Security Event Logs
-* Identity and Access Management
-* Security Incident Response
+- 
 
 ---
 
 ## References
 
-* Microsoft Learn — Active Directory Domain Services
-* Microsoft Learn — Windows Security Auditing
-* Microsoft Learn — Windows Security Event IDs
-* Microsoft Learn — Microsoft Entra ID
+- Microsoft Learn: Active Directory Domain Services
+- Microsoft Learn: Windows Security Auditing, including Event ID 4740 (account lockout) and Event ID 4625 (failed logon)
+- Microsoft Learn: Active Directory PowerShell module (`Get-ADUser`, `Unlock-ADAccount`, `Get-ADDomain`)
+- Microsoft Learn: Microsoft Entra ID (smart lockout and self-service password reset)
+- Your organization's identity verification, password, and incident response policies
