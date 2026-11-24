@@ -1,602 +1,378 @@
-# Wi-Fi Connectivity Troubleshooting Runbook
+# Wi-Fi Connectivity
 
-## Overview
+**Summary:** Wi-Fi problems stop people from reaching the internet, company applications, VPN, printers, and shared drives. This runbook helps you work out whether the problem is with the user's device, the wireless signal, sign-in, IP address (DHCP), name lookup (DNS), or the wider network, then fix it and confirm it worked.
 
-This runbook provides a standardized procedure for troubleshooting **Wi-Fi connectivity problems** in an IT support environment.
+**Environment:** Controlled IT support environment (Windows laptops and desktops with Wi-Fi adapters, corporate, guest, and home wireless networks, endpoint management)
 
-Wireless connectivity issues can prevent users from accessing the internet, corporate applications, VPN services, network drives, printers, and other business resources.
+**Related runbooks:** `vpn-troubleshooting.md`, `account-lockout.md`, `password-reset.md`, `laptop-setup-checklist.md`, `incident-escalation.md`
 
-The objective of this runbook is to identify whether the problem originates from the user's device, wireless network, authentication, DNS, DHCP, access point, or wider network infrastructure, then restore connectivity and verify the resolution.
-
----
-
-## Purpose
-
-This procedure is intended to help IT Support and Service Desk personnel:
-
-* Diagnose common Wi-Fi connectivity problems
-* Troubleshoot Windows wireless network issues
-* Identify authentication and password problems
-* Diagnose IP address and DHCP issues
-* Troubleshoot DNS-related connectivity problems
-* Identify weak or unstable wireless connections
-* Distinguish device-specific problems from network-wide outages
-* Verify successful network connectivity
-* Determine when escalation is required
+> **In plain English:** getting online is a chain of steps: find the network, sign in, get an address, reach the internet, and look up website names. This runbook tests each link in the chain to find the one that is broken.
 
 ---
 
-## Scope
+## Symptoms
 
-This runbook applies to common wireless networking scenarios involving:
+A user may report:
 
-* Windows laptops and desktop computers with Wi-Fi adapters
-* Corporate wireless networks
-* Home Wi-Fi networks used for remote work
-* Guest wireless networks
-* Wireless authentication
-* DHCP
-* DNS
-* Wireless access points
-* Network connectivity
-* VPN connectivity over Wi-Fi
-
-The exact troubleshooting procedure may vary depending on the organization's wireless infrastructure, authentication method, network segmentation, and endpoint management solution.
+- Cannot connect, or the Wi-Fi network is not visible
+- Wi-Fi keeps disconnecting
+- Connected but "No Internet" or "No Internet, secured"
+- Wi-Fi is very slow
+- Connected to the wrong network
+- Password rejected, or corporate Wi-Fi sign-in fails
+- Cannot get an IP address
+- VPN drops while on Wi-Fi
+- Network drives or internal apps are unavailable
+- Works on one device but not another
 
 ---
 
-# Common Wi-Fi Problems
+## Prerequisites
 
-Users may report:
+Before starting, make sure you have:
 
-* Cannot connect to Wi-Fi
-* Wi-Fi network is not visible
-* Wi-Fi keeps disconnecting
-* Wi-Fi is connected but there is no internet
-* Wi-Fi is extremely slow
-* Connected to the wrong wireless network
-* "No Internet" or "No Internet, secured"
-* Unable to obtain an IP address
-* Wi-Fi password is rejected
-* Corporate Wi-Fi authentication fails
-* VPN disconnects while using Wi-Fi
-* Network drives or internal applications are unavailable
-* Wi-Fi works on one device but not another
+- **Information from the user:** device, location (office, home, or elsewhere), network name (SSID), when it started, whether it worked before, and whether others are affected
+- **Tools:** Command Prompt or PowerShell, Device Manager, and Windows Wi-Fi settings
+- **Access:** local administrator rights on the device for adapter and driver changes (where authorized)
+- **Approved sources:** your organization's approved wireless drivers and profiles
+- **Awareness:** know which networks are managed by company policy (do not remove corporate profiles without authorization)
+
+> **Note:** Do not ask for or record Wi-Fi passwords, MFA codes, or tokens.
 
 ---
 
-# Troubleshooting Procedure
+## Troubleshooting / Implementation
 
-## 1. Identify the Problem
+Work through these in order. Each step tests one link in the chain.
 
-Determine exactly what the user is experiencing.
+### 1. Identify the problem
+Find out which stage is failing:
 
-Confirm:
+- Seeing the network
+- Connecting to it
+- Signing in (authentication)
+- Getting an IP address
+- Reaching internal resources or the internet
+- Staying connected
 
-* User's device
-* Operating system
-* Wireless network name (SSID)
-* User's location
-* Whether the problem is occurring at the office, home, or another location
-* Approximate time the problem started
-* Whether the device connected successfully before
-* Whether other devices are experiencing the same issue
-* Whether the problem affects internet access, internal resources, or both
+### 2. Check the scope
+Decide whether this is **one device** or **many**.
 
-Determine whether the problem occurs during:
+| Scope | Likely areas |
+|---|---|
+| **One device** | Adapter, driver, saved Wi-Fi profile, credentials, security software, local settings |
+| **Many devices** | Access point, DHCP, DNS, authentication service, network or internet outage |
 
-* Detecting the wireless network
-* Connecting to the wireless network
-* Authentication
-* Obtaining an IP address
-* Accessing network resources
-* Maintaining the connection
+Many affected users means a possible wider incident. Go to **When to escalate**.
 
----
+### 3. Check the basics
+- [ ] Wi-Fi is turned on and **Airplane mode** is off
+- [ ] Wireless adapter is enabled
+- [ ] Physical Wi-Fi switch or function key is not disabling it
+- [ ] The user is within range and the expected network is visible
+- [ ] Restarting the device has been tried
 
-## 2. Determine the Scope of the Problem
+### 4. Confirm the correct network
+Check the user is on the **right SSID**. A device on guest Wi-Fi, a phone hotspot, or a neighbor's network may be online but unable to reach company resources.
 
-Before changing settings, establish whether the issue affects one device or multiple devices.
+On guest networks, check whether a sign-in or terms page (captive portal) must be completed in a browser.
 
-### If only one device is affected
+### 5. Check signal strength
+Weak signal causes slow speeds, drops, and poor VPN performance. View the current connection details:
 
-Possible causes include:
+```cmd
+netsh wlan show interfaces
+```
 
-* Wi-Fi adapter
-* Device configuration
-* Driver
-* Saved wireless profile
-* Authentication credentials
-* Device security software
-* Local network settings
+Check **SSID**, **Signal**, **Radio type**, and **Channel**. If the signal is poor:
 
-### If multiple devices are affected
+1. Move closer to the access point and test again.
+2. See whether the problem follows the user or stays in one location.
+3. Ask whether others in the same area are affected.
 
-Possible causes include:
+A problem in one physical area points to the wireless infrastructure.
 
-* Wireless access point
-* Network infrastructure
-* DHCP
-* DNS
-* Authentication service
-* Network outage
-* Internet service interruption
+### 6. Check the adapter
+```powershell
+Get-NetAdapter | Where-Object { $_.Name -like '*Wi-Fi*' -or $_.InterfaceDescription -like '*Wireless*' }
+```
 
-This distinction helps determine whether the issue should be handled as an endpoint problem or a wider network incident.
+Also open **Device Manager** and check the adapter is present, enabled, error-free, and using the right driver.
 
----
+### 7. Check the IP configuration
+```cmd
+ipconfig /all
+```
 
-# Basic Wi-Fi Checks
+Look at the IPv4 address, subnet mask, default gateway, DNS servers, and DHCP status.
 
-## 3. Verify Wi-Fi Is Enabled
+- **A valid address on the expected network** means DHCP worked.
+- **An address starting with `169.254`** means the device could not get an address from DHCP.
 
-Check that:
+### 8. Renew the IP address
+```cmd
+ipconfig /release
+ipconfig /renew
+ipconfig /all
+```
 
-* Wi-Fi is enabled
-* Airplane mode is disabled
-* Wireless adapter is enabled
-* Device is within reasonable wireless range
-* The expected wireless network is visible
+If it still cannot get a valid address, suspect DHCP or the wireless connection itself.
 
-On laptops, check whether a physical wireless switch or function key has disabled the wireless adapter.
+### 9. Test the connection layer by layer
 
----
+| Test | Command | What a failure suggests |
+|---|---|---|
+| Gateway | `ping <default-gateway>` | Weak Wi-Fi, bad IP settings, wireless isolation, or an access point problem |
+| Internet (by IP) | `ping 8.8.8.8` | Routing, firewall, internet outage |
+| Name lookup (DNS) | `nslookup example.com` | DNS server or configuration problem |
 
-## 4. Confirm the Correct Wireless Network
+Newer alternatives:
 
-Verify that the device is connected to the intended SSID.
+```powershell
+Test-NetConnection -ComputerName example.com -Port 443
+Resolve-DnsName example.com
+```
 
-Be particularly careful when multiple networks are available, such as:
+> **Notes:**
+> - Some networks block ping, so a failed ping alone does not prove there is no internet.
+> - If the IP test works but the name lookup fails, the problem is DNS. Check DNS server addresses, VPN settings, and organizational DNS policies. You can also try `ipconfig /flushdns`.
 
-* Corporate Wi-Fi
-* Guest Wi-Fi
-* Personal hotspot
-* Home Wi-Fi
-* Neighboring networks
+### 10. Check Wi-Fi sign-in
+For networks that need a username or password, confirm the user is using the right account and current credentials. Causes include:
 
-A user may appear connected but have no access to required corporate resources because the device is connected to the wrong network.
+- Wrong or recently changed password
+- Locked or expired account (see `account-lockout.md`, `password-reset.md`)
+- Wrong username or authentication method
+- Device not authorized for the network
+- Incorrect date and time on the device (this can break certificate checks)
 
----
+### 11. Check enterprise Wi-Fi sign-in
+Corporate Wi-Fi often uses WPA2/WPA3-Enterprise, 802.1X, RADIUS, or certificates. Failures can come from:
 
-## 5. Check Wireless Signal Strength
+- Invalid credentials
+- Expired or missing certificate
+- Wrong wireless profile
+- Device not registered
+- Authentication server unavailable
+- Incorrect network policy
 
-Check the Wi-Fi signal strength.
+Problems with authentication infrastructure usually need escalation.
 
-A weak signal can cause:
+### 12. Forget and reconnect
+If the saved profile looks corrupted or holds outdated credentials:
 
-* Slow connections
-* Intermittent connectivity
-* Frequent disconnections
-* High latency
-* Poor VPN performance
+1. Open **Wi-Fi settings** and find the network.
+2. Select **Forget**.
+3. Reconnect to the correct SSID.
+4. Sign in with current approved credentials.
+5. Test connectivity.
 
-If signal strength is poor:
+Command-line alternative:
 
-1. Move closer to the wireless access point where practical.
-2. Test the connection again.
-3. Determine whether the issue follows the user's location.
-4. Check whether other users experience similar problems in the same area.
+```cmd
+netsh wlan show profiles
+netsh wlan delete profile name="ExampleSSID"
+```
 
-If problems consistently occur in a particular physical location, the issue may require wireless infrastructure investigation.
+> **Warning:** Do not remove corporate profiles managed by policy unless authorized.
 
----
+### 13. Check the wireless driver
+An old, corrupted, or incompatible driver can cause drops, missing networks, slow speeds, and adapter crashes.
 
-# Windows Network Configuration
+1. In **Device Manager**, check the adapter status, driver version, driver date, and any error codes.
+2. Note any recent driver changes.
+3. Identify the exact adapter.
+4. Update, reinstall, or roll back to the **approved** driver.
+5. Restart if needed and reconnect.
 
-## 6. Check the Network Adapter
+Also check the adapter's **Power Management** tab. If "Allow the computer to turn off this device to save power" is on, it may cause drops after sleep (change only if permitted).
 
-Verify that Windows detects the wireless adapter.
+Use only approved drivers.
 
+### 14. Reset the network stack (if authorized)
+If earlier steps fail and policy allows, these reset Windows networking components. Restart afterwards.
+
+```cmd
+netsh winsock reset
+netsh int ip reset
+```
+
+> **Note:** These can remove custom network settings. Use only with authorization, and record what you changed.
+
+### 15. Investigate slow Wi-Fi
 Check:
 
-* Adapter is enabled
-* Adapter appears in Device Manager
-* No hardware errors are displayed
-* Correct driver is installed
-* Adapter is not repeatedly disconnecting
+- Signal strength and distance from the access point
+- Number of devices on the network and congestion
+- VPN use, and test with and without VPN where policy allows
+- Background downloads or updates
+- Device performance (see `slow-computer-troubleshooting.md`)
+- Internet service performance
 
-If the adapter has an error, investigate the associated Windows device or driver issue.
+If slowness happens only in one area, investigate the access points serving that area.
+
+### 16. Investigate disconnections
+1. Check whether it happens in a specific place.
+2. Check signal strength and whether others are affected.
+3. Review adapter and driver status.
+4. Check whether the device roams between networks or access points.
+5. Test on another approved network where appropriate.
+6. Check whether it happens after sleep or in power-saving mode.
+7. Record how often and when it happens.
+
+To generate a detailed report of recent connection history (run in an elevated window):
+
+```cmd
+netsh wlan show wlanreport
+```
+
+The report is saved as an HTML file, usually in `C:\ProgramData\Microsoft\Windows\WlanReport`. It shows connection attempts, failures, and reasons.
+
+Frequent drops affecting several users point to a wireless infrastructure problem.
+
+### 17. VPN over Wi-Fi
+If Wi-Fi works but the VPN is unstable:
+
+1. Confirm normal internet access and a stable Wi-Fi connection.
+2. Test without VPN where appropriate.
+3. Check the VPN client status and look for packet loss.
+4. Follow `vpn-troubleshooting.md`.
+
+Don't assume Wi-Fi is the cause just because the user is wireless.
+
+### When to escalate
+Use `incident-escalation.md` when:
+
+- Several users cannot connect to the same network
+- A whole area has lost wireless service, or multiple access points seem down
+- DHCP or DNS services appear unavailable
+- Enterprise wireless authentication is failing
+- Network configuration changes are needed
+- Wireless equipment needs physical maintenance
+- The problem continues after approved device troubleshooting
+- There is evidence of unauthorized wireless activity
+- A critical business service is affected
+
+**Include in the escalation:** affected users and device details, network name and location, when it began, IP configuration, test results, error messages, signal information, what you already tried, and the number of devices affected.
+
+### Common Wi-Fi scenarios
+
+| Symptom | Possible cause | What to check |
+|---|---|---|
+| Network not visible | Adapter, signal, access point, configuration | Adapter, location, available networks |
+| Will not connect | Credentials, profile, authentication | SSID, credentials, saved profile |
+| Connected but no internet | Gateway, DNS, routing, internet outage | IP settings, gateway, DNS, external ping |
+| `169.254.x.x` address | DHCP failure | Renew the IP, check DHCP |
+| Keeps disconnecting | Weak signal, driver, interference, infrastructure | Signal, driver, location, other users |
+| Slow Wi-Fi | Signal, congestion, bandwidth, device | Signal, network use, device performance |
+| Only one user affected | Device configuration or adapter | The user's device |
+| Many users affected | Access point or infrastructure | Possible wider incident |
+| Corporate Wi-Fi rejects credentials | Account or enterprise Wi-Fi issue | Account status, wireless profile, certificate |
+| Wi-Fi works but VPN fails | VPN or authentication issue | `vpn-troubleshooting.md` |
+| Internet works but internal resources fail | Internal DNS, routing, or network segmentation | Internal DNS and network access |
 
 ---
 
-## 7. Check the IP Configuration
+## Resolution
 
-Open Command Prompt or PowerShell and run:
+Apply the fix that matches what you found:
 
-```text id="9znf0a"
-ipconfig /all
-```
+| Finding | Typical resolution |
+|---|---|
+| Wi-Fi or Airplane mode off | Turn Wi-Fi on and Airplane mode off |
+| Wrong network | Connect to the correct SSID |
+| Corrupted or outdated saved profile | Forget and reconnect (if permitted) |
+| DHCP not giving an address | Renew the IP; escalate if DHCP seems down |
+| DNS failure | Check DNS settings; flush the DNS cache; escalate if DNS infrastructure is at fault |
+| Driver fault | Update, reinstall, or roll back to the approved driver |
+| Weak signal in one location | Move closer; report the dead spot to the network team |
+| Account locked or password changed | Follow `account-lockout.md` or `password-reset.md` |
+| Certificate or enterprise authentication problem | Escalate |
+| Many users affected | Treat as a wider incident and escalate |
 
-Review:
+### Document the ticket
+Record:
 
-* IPv4 address
-* Subnet mask
-* Default gateway
-* DNS servers
-* DHCP status
-* Wireless adapter information
+- Date and time reported, user, and device
+- Wireless network and location
+- Symptoms and error messages
+- IP configuration findings and connectivity test results
+- Troubleshooting performed and changes made
+- Resolution and verification results
+- Escalation details, if any
 
-A valid address from the expected network generally indicates that DHCP has successfully provided network configuration.
-
-An address beginning with:
-
-```text id="lypgc7"
-169.254.x.x
-```
-
-may indicate that the device was unable to obtain an IPv4 address from DHCP.
-
----
-
-## 8. Renew the IP Address
-
-If DHCP appears to be the problem, renew the network configuration.
-
-Run:
-
-```text id="0kvlc8"
-ipconfig /release
-```
-
-Then:
-
-```text id="rq8yvb"
-ipconfig /renew
-```
-
-Verify the resulting configuration:
-
-```text id="p7wq5d"
-ipconfig /all
-```
-
-If the device cannot obtain a valid address, investigate DHCP availability and wireless network connectivity.
+> **Never** record passwords, MFA codes, tokens, or other credentials in the ticket.
 
 ---
 
-# Connectivity Testing
+## Verification
 
-## 9. Test the Default Gateway
+- [ ] Symptoms identified and scope determined
+- [ ] Wi-Fi on and correct SSID confirmed
+- [ ] Signal strength checked
+- [ ] Wireless adapter and driver checked
+- [ ] IP configuration and DHCP reviewed
+- [ ] Default gateway tested
+- [ ] Internet connectivity tested
+- [ ] DNS resolution tested
+- [ ] Wireless sign-in checked
+- [ ] Saved profile reviewed where appropriate
+- [ ] VPN impact checked where applicable
+- [ ] Connection stays stable for a reasonable time
+- [ ] Internal resources (drives, apps) reachable where required
+- [ ] User confirms they have the connectivity they need
+- [ ] Ticket updated, and escalation completed if required
 
-Test connectivity to the assigned gateway:
+Quick final check:
 
-```text id="a4yq3u"
-ping <default-gateway>
-```
-
-A successful response indicates that the device can communicate with the gateway, assuming ICMP is permitted.
-
-A failed test may indicate:
-
-* Weak wireless connection
-* Incorrect IP configuration
-* Wireless isolation
-* Access point problem
-* Network configuration issue
-
----
-
-## 10. Test Internet Connectivity
-
-Test an external IP address:
-
-```text id="1g4yxx"
+```cmd
+netsh wlan show interfaces
+ipconfig
 ping 8.8.8.8
-```
-
-If the gateway responds but the external IP does not, investigate:
-
-* Routing
-* Firewall
-* Internet connectivity
-* Network outage
-
-ICMP may be blocked by some networks, so a failed ping does not by itself prove that internet access is unavailable.
-
----
-
-## 11. Test DNS Resolution
-
-Test DNS using:
-
-```text id="9r8cwy"
 nslookup example.com
 ```
 
-If external IP connectivity works but DNS resolution fails, investigate DNS configuration.
-
-Check:
-
-* DNS server addresses
-* DNS availability
-* VPN configuration
-* Network-provided DNS settings
-* Organizational DNS policies
+> **In plain English:** the device is on the right network, has a valid address, can reach the internet and company resources, and stays connected.
 
 ---
 
-# Wi-Fi Authentication Troubleshooting
+## Prevention
 
-## 12. Verify Wireless Credentials
+Organizations can reduce Wi-Fi problems by:
 
-For networks requiring user authentication, confirm that the user is authenticating with the expected account and current credentials.
-
-Possible causes include:
-
-* Incorrect password
-* Recently changed password
-* Locked account
-* Expired password
-* Incorrect username
-* Incorrect authentication method
-* Device not authorized for the network
-
-Do not request or record passwords.
-
-If an account lockout is suspected, follow the [Account Lockout](account-lockout.md) runbook.
+- **Maintaining current wireless equipment and good coverage**, and reviewing capacity as usage grows
+- **Monitoring access points, DHCP, and DNS** so problems are found before users report them
+- **Maintaining enterprise authentication** (RADIUS and certificates), and renewing certificates before they expire
+- **Standardizing supported wireless settings and drivers**, and keeping drivers current
+- **Pushing managed wireless profiles** so users do not set up corporate Wi-Fi by hand
+- **Documenting the wireless network design**, including SSIDs, segmentation, and access point locations
+- **Monitoring network performance** and recording problem areas
+- **Giving users simple guidance** on connecting, forgetting a network, and when to contact IT
 
 ---
 
-## 13. Check Enterprise Wi-Fi Authentication
+## Lessons Learned
 
-Corporate Wi-Fi may use technologies such as:
+- **Find out whether it's one device or many first.** It decides whether you troubleshoot a laptop or declare an incident.
+- **Test in layers.** Gateway, then internet by IP, then DNS. Each result narrows the problem.
+- **"Connected" does not mean "working."** A user can be on the wrong network or have no internet.
+- **Location matters.** Problems that follow a place point to the access point, not the device.
+- **A `169.254` address almost always means DHCP failed.**
+- **Check the date and time.** A wrong clock can break certificate-based Wi-Fi sign-in.
+- **Don't blame Wi-Fi for every VPN problem.** Test without the VPN where allowed.
+- **Don't remove managed profiles without permission.** It can lock the user out of corporate Wi-Fi.
 
-* WPA2-Enterprise
-* WPA3-Enterprise
-* 802.1X
-* RADIUS
-* Certificate-based authentication
+### My notes
+_Add your own lessons here from lab exercises or real tickets:_
 
-Authentication failures may be caused by:
-
-* Invalid credentials
-* Expired certificate
-* Missing certificate
-* Incorrect wireless profile
-* Device not registered
-* Authentication server unavailable
-* Incorrect network policy
-
-Issues involving enterprise authentication infrastructure may require escalation.
+- 
 
 ---
 
-# Forget and Reconnect to Wi-Fi
+## References
 
-## 14. Remove a Problematic Wireless Profile
-
-If the saved wireless configuration appears corrupted or contains outdated credentials, remove the saved network and reconnect.
-
-In Windows:
-
-1. Open Wi-Fi settings.
-2. Locate the affected network.
-3. Select the option to forget the network.
-4. Confirm the network is removed.
-5. Reconnect to the correct SSID.
-6. Authenticate using the current approved credentials.
-7. Test connectivity.
-
-Do not remove corporate wireless profiles managed by organizational policy unless authorized.
-
----
-
-# Wi-Fi Driver Troubleshooting
-
-## 15. Check the Wireless Driver
-
-An outdated, corrupted, or incompatible wireless driver can cause:
-
-* Frequent disconnections
-* Missing Wi-Fi networks
-* Slow wireless performance
-* Adapter crashes
-* Intermittent connectivity
-
-Check the wireless adapter in Device Manager.
-
-Verify:
-
-* Device status
-* Driver version
-* Driver date
-* Error codes
-* Recent driver changes
-
-Use only approved driver packages and organizational deployment procedures when updating drivers.
-
----
-
-## 16. Reinstall or Update the Wireless Driver
-
-If the wireless driver is suspected:
-
-1. Identify the exact wireless adapter.
-2. Record the current driver information.
-3. Obtain the approved driver.
-4. Update or reinstall the driver.
-5. Restart the device if required.
-6. Reconnect to the wireless network.
-7. Test connectivity.
-
-If the issue began immediately after a driver update, investigate whether an approved rollback is appropriate.
-
----
-
-# Wi-Fi Performance Problems
-
-## 17. Investigate Slow Wi-Fi
-
-Slow wireless performance can have several causes.
-
-Check:
-
-* Signal strength
-* Distance from access point
-* Number of connected devices
-* Network congestion
-* VPN usage
-* Background downloads
-* Device performance
-* Internet service performance
-
-Test the connection with and without VPN where organizational policy permits.
-
-If performance problems occur only in a specific area, investigate the wireless infrastructure serving that location.
-
----
-
-## 18. Check for Intermittent Disconnections
-
-If Wi-Fi repeatedly disconnects:
-
-1. Determine whether the issue occurs at a specific location.
-2. Check signal strength.
-3. Check whether other devices are affected.
-4. Review adapter and driver status.
-5. Check for network switching.
-6. Test with another approved wireless network where appropriate.
-7. Check whether the device enters sleep or power-saving states.
-8. Record the frequency and timing of disconnections.
-
-Frequent disconnections affecting multiple users should be treated as a potential wireless infrastructure issue.
-
----
-
-# VPN Over Wi-Fi
-
-If Wi-Fi works normally but VPN connectivity is unstable:
-
-1. Verify normal internet access.
-2. Confirm Wi-Fi stability.
-3. Test the connection without VPN where appropriate.
-4. Check VPN client status.
-5. Check for packet loss or network instability.
-6. Follow the [VPN Troubleshooting](vpn-troubleshooting.md) runbook.
-
-Do not assume that a VPN problem is caused by Wi-Fi simply because the user is connected wirelessly.
-
----
-
-# Common Wi-Fi Scenarios
-
-| Symptom                                    | Possible Cause                                       | Recommended Investigation                                       |
-| ------------------------------------------ | ---------------------------------------------------- | --------------------------------------------------------------- |
-| Wi-Fi network is not visible               | Adapter, signal, access point, or configuration      | Check adapter, location, and available networks                 |
-| Wi-Fi will not connect                     | Credentials, profile, or authentication              | Verify SSID, credentials, and wireless profile                  |
-| Connected but no internet                  | Gateway, DNS, routing, or internet outage            | Check IP configuration, gateway, DNS, and external connectivity |
-| 169.254.x.x address                        | DHCP failure                                         | Renew IP configuration and investigate DHCP                     |
-| Wi-Fi keeps disconnecting                  | Weak signal, driver, interference, or infrastructure | Check signal, driver, location, and other affected users        |
-| Wi-Fi is slow                              | Signal, congestion, bandwidth, or device issue       | Check signal, network utilization, and device performance       |
-| Only one user is affected                  | Endpoint configuration or adapter                    | Troubleshoot the affected device                                |
-| Multiple users are affected                | Access point or network infrastructure               | Check for wider network incident                                |
-| Corporate Wi-Fi rejects credentials        | Authentication or account issue                      | Check account status and enterprise Wi-Fi configuration         |
-| Wi-Fi works but VPN fails                  | VPN or authentication issue                          | Follow VPN troubleshooting procedure                            |
-| Internet works but internal resources fail | DNS, routing, or network segmentation                | Check internal DNS and network access                           |
-
----
-
-# Verification Checklist
-
-* [ ] User's symptoms identified
-* [ ] Scope of the issue determined
-* [ ] Wi-Fi enabled
-* [ ] Correct SSID confirmed
-* [ ] Signal strength checked
-* [ ] Wireless adapter checked
-* [ ] Wireless driver checked
-* [ ] IP configuration reviewed
-* [ ] DHCP status checked
-* [ ] Default gateway tested
-* [ ] Internet connectivity tested
-* [ ] DNS resolution tested
-* [ ] Wireless authentication checked
-* [ ] Wireless profile reviewed where appropriate
-* [ ] VPN impact checked where applicable
-* [ ] Test connection completed
-* [ ] User confirms required connectivity
-* [ ] Ticket updated
-* [ ] Escalation completed if required
-
----
-
-# Escalation Criteria
-
-Escalate the issue to the appropriate network, infrastructure, identity, or security team when:
-
-* Multiple users cannot connect to the same Wi-Fi network
-* An entire area has lost wireless connectivity
-* Multiple access points appear unavailable
-* DHCP services appear unavailable
-* DNS infrastructure is unavailable
-* Enterprise wireless authentication is failing
-* Network configuration changes are required
-* Wireless infrastructure requires physical maintenance
-* The issue persists after approved endpoint troubleshooting
-* There is evidence of unauthorized wireless activity
-* The problem affects a critical business service
-
-Provide the escalation team with:
-
-* Affected user or users
-* Device information
-* Wireless network name
-* User location
-* Approximate time the problem started
-* IP configuration
-* Connectivity test results
-* Error messages
-* Wireless signal information where available
-* Troubleshooting performed
-* Number of affected devices
-
----
-
-# Documentation Requirements
-
-Record the following information in the support ticket:
-
-* Date and time reported
-* Affected user
-* Device
-* Wireless network
-* User location
-* Symptoms
-* Error messages
-* IP configuration findings where relevant
-* Connectivity test results
-* Troubleshooting performed
-* Changes made
-* Resolution
-* Verification results
-* Escalation details where applicable
-
-Do not record passwords, MFA codes, authentication tokens, or other sensitive credentials.
-
----
-
-# Prevention
-
-Organizations can reduce recurring Wi-Fi connectivity problems by:
-
-* Maintaining current wireless infrastructure
-* Monitoring access points
-* Maintaining appropriate wireless coverage
-* Standardizing supported wireless configurations
-* Keeping wireless drivers current
-* Monitoring DHCP and DNS services
-* Maintaining enterprise wireless authentication infrastructure
-* Documenting wireless network architecture
-* Monitoring network performance
-* Reviewing wireless capacity
-* Maintaining appropriate network segmentation
-* Providing users with approved wireless troubleshooting procedures
-
----
-
-# Related Runbooks
-
-* [VPN Troubleshooting](vpn-troubleshooting.md)
-* [Account Lockout](account-lockout.md)
-* [Password Reset](password-reset.md)
-* [Incident Escalation](incident-escalation.md)
+- Microsoft Learn: `netsh wlan` commands and the Wireless Network Report (`netsh wlan show wlanreport`)
+- Microsoft Learn: `ipconfig`, `ping`, `nslookup`, `Test-NetConnection`, and `Resolve-DnsName`
+- Microsoft Learn: Troubleshoot network connectivity in Windows
+- Microsoft Learn: 802.1X authentication and enterprise wireless (WPA2/WPA3-Enterprise, RADIUS)
+- Your organization's wireless, network, driver, and incident response policies
